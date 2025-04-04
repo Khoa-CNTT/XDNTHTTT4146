@@ -1,4 +1,5 @@
 const { Sequelize } = require("sequelize");
+const { sequelize } = require("../../config/mysql");
 
 const sequelize = new Sequelize(
   process.env.MYSQL_DATABASE,

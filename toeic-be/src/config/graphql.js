@@ -1,33 +1,39 @@
-// Cấu hình Apollo Server
 const { ApolloServer } = require("apollo-server-express");
-const { typeDefs } = require("../schema");
-const { resolvers } = require("../resolvers");
-const jwt = require("jsonwebtoken");
+const express = require("express");
+const { typeDefs } = require("../schema/schema");
+const { resolvers } = require("../resolvers/resolvers");
+const { getUserFromToken } = require("../utils/jwtHelper");
+const errorHandler = require("../middlewares/errorHandler");
 
-const SECRET_KEY = process.env.SECRET_KEY;
-
-// Hàm xác thực người dùng từ JWT
-const getUserFromToken = (token) => {
+const createApolloServer = async () => {
   try {
-    if (!token) return null;
-    return jwt.verify(token, SECRET_KEY);
-  } catch (err) {
-    return null;
-  }
-};
+    const app = express();
 
-const createApolloServer = () => {
-  return new ApolloServer({
-    typeDefs,
-    resolvers,
-    context: ({ req }) => {
-      const token = req.headers.authorization || "";
-      const user = getUserFromToken(token.replace("Bearer ", ""));
-      return { user };
-    },
-    introspection: true,
-    playground: true,
-  });
+    const server = new ApolloServer({
+      typeDefs,
+      resolvers,
+      context: ({ req }) => {
+        const authHeader = req.headers.authorization;
+        const token =
+          authHeader && authHeader.startsWith("Bearer ")
+            ? authHeader.slice(7)
+            : null;
+        const user = getUserFromToken(token);
+        return { user };
+      },
+      introspection: true,
+      playground: true,
+    });
+
+    await server.start();
+
+    server.applyMiddleware({ app });
+
+    return { app, server };
+  } catch (error) {
+    console.error("Error initializing Apollo Server:", error);
+    throw error;
+  }
 };
 
 module.exports = { createApolloServer };

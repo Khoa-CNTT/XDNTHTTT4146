@@ -1,6 +1,7 @@
 const { DataTypes, Model } = require("sequelize");
-const sequelize = require("../config/mysql").sequelize;
-
+const { sequelize } = require("../../config/mysql");
+const User = require("./User");
+const Seed = require("./Seed");
 class VocabularyGarden extends Model {
   static associate(models) {
     VocabularyGarden.belongsTo(models.User, { foreignKey: "userId" });

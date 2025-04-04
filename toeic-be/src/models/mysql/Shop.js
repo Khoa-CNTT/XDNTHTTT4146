@@ -1,4 +1,5 @@
 const { DataTypes, Model } = require("sequelize");
+const { sequelize } = require("../../config/mysql");
 
 class Shop extends Model {
   static init(sequelize) {

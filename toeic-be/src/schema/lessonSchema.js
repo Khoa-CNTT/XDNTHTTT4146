@@ -1,21 +1,21 @@
 const { gql } = require("apollo-server-express");
 
 const typeDefs = gql`
-  type Course {
+  type Lesson {
     id: ID!
     title: String!
-    description: String!
+    content: String!
     createdAt: String
     updatedAt: String
   }
 
   type Query {
-    courses: [Course!]!
-    course(id: ID!): Course
+    lessons: [Lesson!]!
+    lesson(id: ID!): Lesson
   }
 
   type Mutation {
-    createCourse(title: String!, description: String!): Course!
+    createLesson(title: String!, content: String!): Lesson!
   }
 `;
 

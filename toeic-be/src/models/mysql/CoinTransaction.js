@@ -1,5 +1,5 @@
 const { DataTypes, Model } = require("sequelize");
-const sequelize = require("../../config/mysql");
+const { sequelize } = require("../../config/mysql");
 
 class CoinTransaction extends Model {}
 
@@ -43,7 +43,9 @@ CoinTransaction.init(
   {
     sequelize,
     modelName: "CoinTransaction",
+    tableName: "coin_transactions",
     timestamps: true,
+    paranoid: true,
   }
 );
 

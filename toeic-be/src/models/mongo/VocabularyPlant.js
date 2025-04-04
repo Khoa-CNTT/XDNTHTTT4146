@@ -7,10 +7,10 @@ const VocabularyPlantSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    word: { type: String, required: true }, // Từ vựng gốc
-    meaning: { type: String, required: true }, // Nghĩa
-    level: { type: Number, default: 1 }, // Level cây từ vựng
-    expEarned: { type: Number, default: 10 }, // Kinh nghiệm nhận được khi thu hoạch
+    word: { type: String, required: true },
+    meaning: { type: String, required: true },
+    level: { type: Number, default: 1 },
+    expEarned: { type: Number, default: 10 },
   },
   { timestamps: true }
 );

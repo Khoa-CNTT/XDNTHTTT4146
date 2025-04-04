@@ -7,15 +7,15 @@ const VocabularySeedSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    word: { type: String, required: true }, // Từ vựng gốc
-    meaning: { type: String, required: true }, // Nghĩa của từ
+    word: { type: String, required: true },
+    meaning: { type: String, required: true },
     status: {
       type: String,
       enum: ["seeded", "growing", "ready_to_harvest"],
       default: "seeded",
     },
-    plantedAt: { type: Date, default: Date.now }, // Thời điểm trồng
-    harvestTime: { type: Date, required: true }, // Thời điểm có thể thu hoạch
+    plantedAt: { type: Date, default: Date.now },
+    harvestTime: { type: Date, required: true },
   },
   { timestamps: true }
 );
