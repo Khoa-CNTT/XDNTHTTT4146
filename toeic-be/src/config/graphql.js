@@ -1,5 +1,6 @@
 const { ApolloServer } = require("apollo-server-express");
 const express = require("express");
+const cors = require("cors"); // 👉 Phải có để cấu hình CORS
 const { typeDefs } = require("../schema/schema");
 const { resolvers } = require("../resolvers/resolvers");
 const { getUserFromToken } = require("../utils/jwtHelper");
@@ -9,25 +10,34 @@ const createApolloServer = async () => {
   try {
     const app = express();
 
+    app.use(
+      cors({
+        origin: "http://localhost:5173", // FE Vite
+        credentials: true,
+      })
+    );
+
+    app.use(express.json());
+    app.use(errorHandler);
+
     const server = new ApolloServer({
       typeDefs,
       resolvers,
-      context: ({ req }) => {
+      context: ({ req, res }) => {
         const authHeader = req.headers.authorization;
         const token =
           authHeader && authHeader.startsWith("Bearer ")
             ? authHeader.slice(7)
             : null;
         const user = getUserFromToken(token);
-        return { user };
+        return { req, res, user };
       },
       introspection: true,
       playground: true,
     });
 
     await server.start();
-
-    server.applyMiddleware({ app });
+    server.applyMiddleware({ app, cors: false });
 
     return { app, server };
   } catch (error) {

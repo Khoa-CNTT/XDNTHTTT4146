@@ -1,5 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { GraphQLError } = require("graphql");
+
 const User = require("../models/mysql/User");
 const Vocabulary = require("../models/mysql/Vocabulary");
 const Game = require("../models/mysql/Game");
@@ -10,19 +12,17 @@ const UserReward = require("../models/mysql/UserReward");
 const Course = require("../models/mysql/Course");
 const Enrollment = require("../models/mysql/Enrollment");
 const Badge = require("../models/mysql/Badge");
-const UserProgress = require("../models/mongo/UserProgress");
-const { GraphQLError } = require("graphql");
 
+const UserProgress = require("../models/mongo/UserProgress");
 const generateToken = require("../utils/jwtHelper");
+
+const { OAuth2Client } = require("google-auth-library");
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const userResolvers = {
   Query: {
-    // Lấy tất cả người dùng
-    getUsers: async () => {
-      return await User.findAll();
-    },
+    getUsers: async () => await User.findAll(),
 
-    // Lấy thông tin người dùng hiện tại (Profile)
     profile: async (_, __, context) => {
       if (!context.user) {
         throw new GraphQLError("Not authenticated", {
@@ -32,39 +32,23 @@ const userResolvers = {
       return await User.findByPk(context.user.id);
     },
 
-    // Lấy vai trò người dùng
     getUserRole: async (_, { userId }) => {
       const user = await User.findByPk(userId, { attributes: ["role"] });
       return user ? user.role : null;
     },
 
-    // Lấy tiến trình học từ MongoDB
     getUserProgress: async (_, { userId }) => {
       return await UserProgress.findOne({ userId });
     },
 
-    // Lấy tiến trình game từ MongoDB
     getUserGameProgress: async (_, { userId }) => {
       return await UserProgress.findOne({ userId }, "gameProgress");
     },
 
-    // Lấy danh sách từ vựng
-    getVocabularies: async () => {
-      return await Vocabulary.findAll();
-    },
+    getVocabularies: async () => await Vocabulary.findAll(),
 
-    // Lấy vai trò người dùng
-    getUserRole: async (_, { userId }) => {
-      const user = await User.findByPk(userId, { attributes: ["role"] });
-      return user ? user.role : null;
-    },
+    getGames: async () => await Game.findAll(),
 
-    // Lấy danh sách game
-    getGames: async () => {
-      return await Game.findAll();
-    },
-
-    // Lấy bảng xếp hạng (Leaderboard)
     getLeaderboard: async () => {
       const leaderboard = await User.findAll({
         order: [["exp", "DESC"]],
@@ -77,39 +61,28 @@ const userResolvers = {
       }));
     },
 
-    // Lấy huy hiệu người dùng từ bảng UserBadge
     getUserBadges: async (_, { userId }) => {
       return await Badge.findAll({
         include: [{ model: User, where: { id: userId } }],
       });
     },
 
-    // Lấy thông tin thanh toán của người dùng
     getPayments: async (_, { userId }) => {
       return await Payment.findAll({ where: { userId } });
     },
 
-    // Lấy danh sách nhiệm vụ hàng ngày
-    getDailyMissions: async () => {
-      return await Mission.findAll();
-    },
+    getDailyMissions: async () => await Mission.findAll(),
 
-    // Lấy danh sách phần thưởng
-    getRewards: async () => {
-      return await Reward.findAll();
-    },
+    getRewards: async () => await Reward.findAll(),
 
-    // Lấy phần thưởng của người dùng
     getUserRewards: async (_, { userId }) => {
       return await UserReward.findAll({ where: { userId } });
     },
 
-    // Lấy danh sách khóa học của giáo viên
     getCoursesByTeacher: async (_, { teacherId }) => {
       return await Course.findAll({ where: { teacherId } });
     },
 
-    // Lấy danh sách học viên trong khóa học (dùng bảng Enrollment)
     getStudentsInCourse: async (_, { courseId }) => {
       return await Enrollment.findAll({
         where: { courseId },
@@ -119,7 +92,47 @@ const userResolvers = {
   },
 
   Mutation: {
-    // Đăng ký người dùng mới
+    googleLogin: async (_, { idToken }) => {
+      try {
+        const ticket = await client.verifyIdToken({
+          idToken,
+          audience: process.env.GOOGLE_CLIENT_ID,
+        });
+        const payload = ticket.getPayload();
+        const { email, name } = payload;
+
+        let user = await User.findOne({ where: { email } });
+        if (!user) {
+          user = await User.create({
+            email,
+            name,
+            password: "",
+            role: "student",
+            status: "active",
+            exp: 0,
+            coins: 0,
+          });
+        }
+
+        const token = jwt.sign(
+          { userId: user.id, email: user.email, role: user.role },
+          process.env.JWT_SECRET,
+          { expiresIn: "1d" }
+        );
+
+        return {
+          status: true,
+          msg: "Login with Google successful",
+          token,
+          user,
+        };
+      } catch (error) {
+        throw new GraphQLError("Google login failed", {
+          extensions: { code: "UNAUTHORIZED" },
+        });
+      }
+    },
+
     register: async (_, { name, email, password }) => {
       const existingUser = await User.findOne({ where: { email } });
       if (existingUser) {
@@ -133,7 +146,7 @@ const userResolvers = {
         name,
         email,
         password: hashedPassword,
-        role: "student", // Default role
+        role: "student",
         exp: 0,
         coins: 0,
       });
@@ -141,7 +154,6 @@ const userResolvers = {
       return { status: true, msg: "User registered successfully!" };
     },
 
-    // Đăng nhập người dùng
     login: async (_, { email, password }) => {
       const user = await User.findOne({ where: { email } });
       if (!user) {
@@ -172,7 +184,6 @@ const userResolvers = {
       return { status: true, msg: "Login successful!", token, user };
     },
 
-    // Cập nhật tiến trình học từ MongoDB
     updateUserProgress: async (_, { userId, completedLessons, score }) => {
       const progress = await UserProgress.findOneAndUpdate(
         { userId },
@@ -182,40 +193,95 @@ const userResolvers = {
       return progress;
     },
 
-    // Khóa người dùng (banned)
     lockUser: async (_, { id }) => {
       const user = await User.findByPk(id);
-      if (!user) {
+      if (!user)
         throw new GraphQLError("User not found", {
           extensions: { code: "NOT_FOUND" },
         });
-      }
 
       if (user.status === "banned") {
         return { status: false, msg: "User is already banned." };
       }
 
-      // Cập nhật trạng thái thành "banned"
       await user.update({ status: "banned" });
       return { status: true, msg: "User has been banned successfully." };
     },
 
-    // Mở khóa người dùng (active lại)
     unlockUser: async (_, { id }) => {
       const user = await User.findByPk(id);
-      if (!user) {
+      if (!user)
         throw new GraphQLError("User not found", {
           extensions: { code: "NOT_FOUND" },
         });
-      }
 
       if (user.status === "active") {
         return { status: false, msg: "User is already active." };
       }
 
-      // Cập nhật trạng thái thành "active"
       await user.update({ status: "active" });
       return { status: true, msg: "User has been activated successfully." };
+    },
+
+    updateProfile: async (_, { id, name, avatar }, context) => {
+      if (!context.user || context.user.id !== id) {
+        throw new GraphQLError("Unauthorized", {
+          extensions: { code: "UNAUTHORIZED" },
+        });
+      }
+
+      const user = await User.findByPk(id);
+      if (!user)
+        throw new GraphQLError("User not found", {
+          extensions: { code: "NOT_FOUND" },
+        });
+
+      await user.update({ name, avatar });
+      return { status: true, msg: "Profile updated successfully.", user };
+    },
+
+    changePassword: async (_, { currentPassword, newPassword }, context) => {
+      if (!context.user) {
+        throw new GraphQLError("Unauthorized", {
+          extensions: { code: "UNAUTHORIZED" },
+        });
+      }
+
+      const user = await User.findByPk(context.user.id);
+      if (!user) throw new GraphQLError("User not found");
+
+      const isMatch = await bcrypt.compare(currentPassword, user.password);
+      if (!isMatch) throw new GraphQLError("Current password is incorrect");
+
+      const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+      await user.update({ password: hashedNewPassword });
+
+      return { status: true, msg: "Password changed successfully." };
+    },
+
+    deleteUser: async (_, { id }, context) => {
+      if (!context.user || context.user.role !== "admin") {
+        throw new GraphQLError("Only admin can delete users", {
+          extensions: { code: "FORBIDDEN" },
+        });
+      }
+
+      const user = await User.findByPk(id);
+      if (!user) throw new GraphQLError("User not found");
+
+      await user.update({ status: "deleted" });
+
+      return { status: true, msg: "User deleted (soft) successfully." };
+    },
+
+    logout: async (_, __, context) => {
+      if (!context.user) {
+        throw new GraphQLError("Unauthorized", {
+          extensions: { code: "UNAUTHORIZED" },
+        });
+      }
+
+      return { status: true, msg: "Logout successful!" };
     },
   },
 };

@@ -99,3 +99,32 @@ export const logoutUser = () => {
 
   window.location.href = "/login";
 };
+// lấy danh sách người dùng
+export const GET_ALL_USERS = gql`
+  query GetAllUsers($page: Int!, $limit: Int!) {
+    getAllUsers(page: $page, limit: $limit) {
+      id
+      name
+      email
+      status
+    }
+  }
+`;
+4;
+// Cập nhật trạng thái người dùng
+export const UPDATE_USER = gql`
+  mutation UpdateUser($id: String!, $status: Boolean!) {
+    changeUserStatus(id: $id, status: $status) {
+      id
+      name
+      email
+      status
+    }
+  }
+`;
+// Xóa người dùng
+export const DELETE_USER = gql`
+  mutation DeleteUser($id: String!) {
+    deleteUser(id: $id)
+  }
+`;
