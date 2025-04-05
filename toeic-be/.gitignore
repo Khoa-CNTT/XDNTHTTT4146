@@ -1,5 +1,0 @@
-# Bảo vệ file .env chứa các biến môi trường
-.env
-# Bảo vệ các thư mục build, dist hoặc các thư mục tạm thời khác
-node_modules/
-
