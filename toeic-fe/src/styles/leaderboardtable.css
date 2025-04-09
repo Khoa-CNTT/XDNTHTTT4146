@@ -1,0 +1,16 @@
+.gold-row {
+  background-color: #fffbe6 !important;
+}
+
+.silver-row {
+  background-color: #f0f0f0 !important;
+}
+
+.bronze-row {
+  background-color: #fdf2e9 !important;
+}
+
+.leaderboard-table .ant-table-thead > tr > th {
+  background-color: #fafafa;
+  font-weight: bold;
+}

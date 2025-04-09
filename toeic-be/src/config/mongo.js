@@ -8,7 +8,13 @@ const connectMongoDB = async () => {
       useUnifiedTopology: true,
     });
 
-    console.log("MongoDB connected successfully!");
+    // Kiểm tra nếu DB trống thì có thể seed dữ liệu mẫu
+    const collections = await mongoose.connection.db
+      .listCollections()
+      .toArray();
+    if (collections.length === 0) {
+      console.log("Database is empty, consider seeding initial data.");
+    }
   } catch (error) {
     console.error("MongoDB connection error:", error);
     process.exit(1);

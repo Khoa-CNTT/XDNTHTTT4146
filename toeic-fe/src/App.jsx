@@ -8,23 +8,33 @@ import {
 } from "react-router-dom";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
-import StudentDashboard from "./pages/StudentPage";
-import TeacherDashboard from "./pages/TeacherPage";
-import ManageCourses from "./pages/ManageCourses";
-import MyCourses from "./pages/MyCourses";
+import StudentPage from "./pages/StudentPage";
+import TeacherPage from "./pages/TeacherPage";
 import LoginPage from "./pages/LoginPage";
+import ForgotPassword from "./pages/auth/ForgotPassword";
+import VocabularyGarden from "./pages/VocabularyGarden";
+import Course from "./pages/Course";
+import CourseDetail from "./pages/CourseDetail";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import "./index.css";
+import PrivateRoute from "./components/PrivateRoute";
+import PeakTower from "./pages/TowerPage";
+import ResetPassword from "./pages/auth/ResetPassword";
+import TestingPage from "./pages/TestingPage";
+import TowerPage from "./pages/TowerPage";
+import CourseManagement from "./pages/admin/CourseManagement";
+import UserManagement from "./pages/admin/UserManagement";
 
 const Layout = ({ children }) => {
   const location = useLocation();
-  const hideNavbar = location.pathname === "/login";
+  const noNavRoutes = ["/login", "/forgot-password"];
+  const hideNavbar = noNavRoutes.includes(location.pathname);
 
   return (
     <>
-      {!hideNavbar && <Navbar /> && <Footer />}
+      {!hideNavbar && <Navbar />}
       {children}
+      {!hideNavbar && <Footer />}
     </>
   );
 };
@@ -34,13 +44,53 @@ const App = () => {
     <Router>
       <Layout>
         <Routes>
+          {/* Public routes */}
           <Route path="/" element={<Home />} />
-          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/student" element={<StudentDashboard />} />
-          <Route path="/teacher" element={<TeacherDashboard />} />
-          <Route path="/teacher/manage-courses" element={<ManageCourses />} />
-          <Route path="/student/courses" element={<MyCourses />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/courses" element={<Course />} />
+          <Route path="/courses/:id" element={<CourseDetail />} />
+          <Route path="/garden" element={<VocabularyGarden />} />
+          <Route path="/tower" element={<PeakTower />} />
+          <Route path="/testing" element={<TestingPage />} />
+
+          {/* Protected routes */}
+          <Route
+            path="/dashboard"
+            element={
+              <PrivateRoute requiredRole="Admin" element={<Dashboard />} />
+            }
+          />
+          <Route
+            path="/admin/user-management"
+            element={
+              <PrivateRoute requiredRole="Admin" element={<UserManagement />} />
+            }
+          />
+          <Route
+            path="/admin/course-management"
+            element={
+              <PrivateRoute
+                requiredRole="Admin"
+                element={<CourseManagement />}
+              />
+            }
+          />
+          <Route
+            path="/student"
+            element={
+              <PrivateRoute requiredRole="Student" element={<StudentPage />} />
+            }
+          />
+          <Route
+            path="/teacher"
+            element={
+              <PrivateRoute requiredRole="Teacher" element={<TeacherPage />} />
+            }
+          />
+
+          {/* Default fallback */}
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </Layout>

@@ -1,6 +1,6 @@
 const { ApolloServer } = require("apollo-server-express");
 const express = require("express");
-const cors = require("cors"); // 👉 Phải có để cấu hình CORS
+const cors = require("cors");
 const { typeDefs } = require("../schema/schema");
 const { resolvers } = require("../resolvers/resolvers");
 const { getUserFromToken } = require("../utils/jwtHelper");
@@ -12,7 +12,7 @@ const createApolloServer = async () => {
 
     app.use(
       cors({
-        origin: "http://localhost:5173", // FE Vite
+        origin: "http://localhost:5173",
         credentials: true,
       })
     );

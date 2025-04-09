@@ -47,19 +47,4 @@ VocabularyExpHistory.init(
   }
 );
 
-// Mối quan hệ
-User.hasMany(VocabularyExpHistory, {
-  foreignKey: "userId",
-});
-VocabularyExpHistory.belongsTo(User, {
-  foreignKey: "userId",
-});
-
-Vocabulary.hasMany(VocabularyExpHistory, {
-  foreignKey: "vocabularyId",
-});
-VocabularyExpHistory.belongsTo(Vocabulary, {
-  foreignKey: "vocabularyId",
-});
-
 module.exports = VocabularyExpHistory;

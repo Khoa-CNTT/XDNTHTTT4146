@@ -14,14 +14,60 @@ const Enrollment = require("../models/mysql/Enrollment");
 const Badge = require("../models/mysql/Badge");
 
 const UserProgress = require("../models/mongo/UserProgress");
-const generateToken = require("../utils/jwtHelper");
+const { Op } = require("sequelize");
 
 const { OAuth2Client } = require("google-auth-library");
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const userResolvers = {
   Query: {
-    getUsers: async () => await User.findAll(),
+    getUsers: async (_, __, context) => {
+      if (!context.user || context.user.role !== "admin") {
+        throw new GraphQLError("Only admin can access user list", {
+          extensions: { code: "FORBIDDEN" },
+        });
+      }
+      return await User.findAll();
+    },
+
+    getUsersWithPagination: async (_, { page = 1, limit = 10 }, context) => {
+      if (!context.user || context.user.role !== "admin") {
+        throw new GraphQLError("Only admin can access user list", {
+          extensions: { code: "FORBIDDEN" },
+        });
+      }
+
+      const offset = (page - 1) * limit;
+      const { count, rows } = await User.findAndCountAll({
+        offset,
+        limit,
+        order: [["createdAt", "DESC"]],
+      });
+
+      return {
+        users: rows,
+        total: count,
+        totalPages: Math.ceil(count / limit),
+        currentPage: page,
+      };
+    },
+
+    searchUsers: async (_, { keyword }, context) => {
+      if (!context.user || context.user.role !== "admin") {
+        throw new GraphQLError("Only admin can search users", {
+          extensions: { code: "FORBIDDEN" },
+        });
+      }
+
+      return await User.findAll({
+        where: {
+          [Op.or]: [
+            { name: { [Op.like]: `%${keyword}%` } },
+            { email: { [Op.like]: `%${keyword}%` } },
+          ],
+        },
+      });
+    },
 
     profile: async (_, __, context) => {
       if (!context.user) {
@@ -42,7 +88,10 @@ const userResolvers = {
     },
 
     getUserGameProgress: async (_, { userId }) => {
-      return await UserProgress.findOne({ userId }, "gameProgress");
+      return await UserProgress.findOne(
+        { userId },
+        { projection: { gameProgress: 1, _id: 0 } }
+      );
     },
 
     getVocabularies: async () => await Vocabulary.findAll(),
@@ -193,7 +242,13 @@ const userResolvers = {
       return progress;
     },
 
-    lockUser: async (_, { id }) => {
+    lockUser: async (_, { id }, context) => {
+      if (!context.user || context.user.role !== "admin") {
+        throw new GraphQLError("Only admin can ban user", {
+          extensions: { code: "FORBIDDEN" },
+        });
+      }
+
       const user = await User.findByPk(id);
       if (!user)
         throw new GraphQLError("User not found", {
@@ -208,7 +263,13 @@ const userResolvers = {
       return { status: true, msg: "User has been banned successfully." };
     },
 
-    unlockUser: async (_, { id }) => {
+    unlockUser: async (_, { id }, context) => {
+      if (!context.user || context.user.role !== "admin") {
+        throw new GraphQLError("Only admin can unlock user", {
+          extensions: { code: "FORBIDDEN" },
+        });
+      }
+
       const user = await User.findByPk(id);
       if (!user)
         throw new GraphQLError("User not found", {
@@ -221,6 +282,20 @@ const userResolvers = {
 
       await user.update({ status: "active" });
       return { status: true, msg: "User has been activated successfully." };
+    },
+
+    deleteUser: async (_, { id }, context) => {
+      if (!context.user || context.user.role !== "admin") {
+        throw new GraphQLError("Only admin can delete users", {
+          extensions: { code: "FORBIDDEN" },
+        });
+      }
+
+      const user = await User.findByPk(id);
+      if (!user) throw new GraphQLError("User not found");
+
+      await user.update({ status: "deleted" });
+      return { status: true, msg: "User deleted (soft) successfully." };
     },
 
     updateProfile: async (_, { id, name, avatar }, context) => {
@@ -253,25 +328,10 @@ const userResolvers = {
       const isMatch = await bcrypt.compare(currentPassword, user.password);
       if (!isMatch) throw new GraphQLError("Current password is incorrect");
 
-      const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+      const hashedNewPassword = await bcrypt.hash(newPassword, 64);
       await user.update({ password: hashedNewPassword });
 
       return { status: true, msg: "Password changed successfully." };
-    },
-
-    deleteUser: async (_, { id }, context) => {
-      if (!context.user || context.user.role !== "admin") {
-        throw new GraphQLError("Only admin can delete users", {
-          extensions: { code: "FORBIDDEN" },
-        });
-      }
-
-      const user = await User.findByPk(id);
-      if (!user) throw new GraphQLError("User not found");
-
-      await user.update({ status: "deleted" });
-
-      return { status: true, msg: "User deleted (soft) successfully." };
     },
 
     logout: async (_, __, context) => {
@@ -283,7 +343,9 @@ const userResolvers = {
 
       return { status: true, msg: "Logout successful!" };
     },
+    updateAvatar: async (_, { userId, base64Image }) => {
+      return await userService.updateUserAvatar(userId, base64Image);
+    },
   },
 };
-
 module.exports = userResolvers;

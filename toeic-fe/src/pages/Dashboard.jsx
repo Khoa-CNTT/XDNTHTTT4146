@@ -1,55 +1,18 @@
-import { Layout, Card, Row, Col, Table } from "antd";
+// pages/AdminDashboard.js
+import { Layout, Row, Col, Card, Typography } from "antd";
 import Sidebar from "../components/layout/Sidebar";
-import HeaderBar from "../components/layout/HeaderBar";
+import HeaderBar from "../components/admin/HeaderBar";
+import StatsCard from "../components/admin/StatsCard";
+import LeaderboardTable from "../components/admin/LeaderboardTable";
 
 const { Content } = Layout;
+const { Title } = Typography;
 
 const leaderboardData = [
-  {
-    key: "1",
-    name: "Alice Nguyen",
-    score: 980,
-    rank: 1,
-  },
-  {
-    key: "2",
-    name: "John Tran",
-    score: 950,
-    rank: 2,
-  },
-  {
-    key: "3",
-    name: "Linh Pham",
-    score: 910,
-    rank: 3,
-  },
-  {
-    key: "4",
-    name: "Minh Le",
-    score: 890,
-    rank: 4,
-  },
-];
-
-const columns = [
-  {
-    title: "Rank",
-    dataIndex: "rank",
-    key: "rank",
-    width: 80,
-    sorter: (a, b) => a.rank - b.rank,
-  },
-  {
-    title: "Student Name",
-    dataIndex: "name",
-    key: "name",
-  },
-  {
-    title: "Score",
-    dataIndex: "score",
-    key: "score",
-    sorter: (a, b) => a.score - b.score,
-  },
+  { key: "1", name: "Alice Nguyen", score: 980, rank: 1 },
+  { key: "2", name: "John Tran", score: 950, rank: 2 },
+  { key: "3", name: "Linh Pham", score: 910, rank: 3 },
+  { key: "4", name: "Minh Le", score: 890, rank: 4 },
 ];
 
 const AdminDashboard = () => {
@@ -59,27 +22,20 @@ const AdminDashboard = () => {
       <Layout>
         <HeaderBar />
         <Content style={{ margin: "24px 16px" }}>
-          <h2>Admin Dashboard</h2>
+          <Title level={2}>Admin Dashboard</Title>
+
           <Row gutter={[16, 16]}>
             <Col xs={24} sm={12} md={6}>
-              <Card title="Total Students" bordered>
-                1200
-              </Card>
+              <StatsCard title="Total Students" value="1200" />
             </Col>
             <Col xs={24} sm={12} md={6}>
-              <Card title="Active Courses" bordered>
-                8
-              </Card>
+              <StatsCard title="Active Courses" value="8" />
             </Col>
             <Col xs={24} sm={12} md={6}>
-              <Card title="Reports Today" bordered>
-                15
-              </Card>
+              <StatsCard title="Reports Today" value="15" />
             </Col>
             <Col xs={24} sm={12} md={6}>
-              <Card title="Completion Rate" bordered>
-                76%
-              </Card>
+              <StatsCard title="Completion Rate" value="76%" />
             </Col>
           </Row>
 
@@ -88,20 +44,7 @@ const AdminDashboard = () => {
             style={{ marginTop: 24 }}
             bordered
           >
-            <Table
-              dataSource={leaderboardData}
-              columns={columns}
-              pagination={false}
-              rowClassName={(record, index) =>
-                index === 0
-                  ? "gold-row"
-                  : index === 1
-                  ? "silver-row"
-                  : index === 2
-                  ? "bronze-row"
-                  : ""
-              }
-            />
+            <LeaderboardTable data={leaderboardData} />
           </Card>
         </Content>
       </Layout>

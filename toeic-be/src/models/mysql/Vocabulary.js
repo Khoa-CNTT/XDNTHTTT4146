@@ -14,6 +14,7 @@ Vocabulary.init(
     word: {
       type: DataTypes.STRING,
       allowNull: false,
+      unique: true,
     },
     meaning: {
       type: DataTypes.STRING,
@@ -21,6 +22,7 @@ Vocabulary.init(
     },
     pronunciation: {
       type: DataTypes.STRING,
+      unique: true,
     },
     example: {
       type: DataTypes.STRING,
@@ -40,12 +42,5 @@ Vocabulary.init(
     paranoid: true,
   }
 );
-
-VocabularyGarden.hasMany(Vocabulary, {
-  foreignKey: "vocabularyGardenId",
-});
-Vocabulary.belongsTo(VocabularyGarden, {
-  foreignKey: "vocabularyGardenId",
-});
 
 module.exports = Vocabulary;

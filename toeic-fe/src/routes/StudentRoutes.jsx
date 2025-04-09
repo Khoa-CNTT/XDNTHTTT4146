@@ -1,6 +1,6 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
-import StudentDashboard from "../pages/student/StudentDashboard";
+import StudentDashboard from "../pages/StudentPage";
 import MyCourses from "../pages/student/MyCourses";
 import PrivateRoute from "./PrivateRoute";
 
@@ -8,12 +8,12 @@ const StudentRoutes = ({ role }) => {
   return (
     <Routes>
       <Route
-        path="/student/dashboard"
+        path=""
         element={
           <PrivateRoute
             element={<StudentDashboard />}
             role={role}
-            requiredRole="student"
+            requiredRole={["student"]} // Mảng vai trò có thể mở rộng sau này
           />
         }
       />
@@ -23,7 +23,7 @@ const StudentRoutes = ({ role }) => {
           <PrivateRoute
             element={<MyCourses />}
             role={role}
-            requiredRole="student"
+            requiredRole={["student"]} // Mảng vai trò có thể mở rộng sau này
           />
         }
       />

@@ -5,38 +5,60 @@ const { UUIDV4 } = require("sequelize");
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    // Tạo một số người dùng mẫu
-    const hashedPassword = await bcrypt.hash("123456", 10); // Mã hóa mật khẩu cho người dùng
+    // Lấy roleId từ bảng roles
+    const adminRole = await queryInterface.rawSelect(
+      "roles",
+      { where: { name: "admin" } },
+      ["id"]
+    );
+
+    const teacherRole = await queryInterface.rawSelect(
+      "roles",
+      { where: { name: "teacher" } },
+      ["id"]
+    );
+
+    const studentRole = await queryInterface.rawSelect(
+      "roles",
+      { where: { name: "student" } },
+      ["id"]
+    );
+
+    if (!adminRole || !teacherRole || !studentRole) {
+      throw new Error("One or more roles do not exist in the roles table.");
+    }
+
+    const hashedPassword = await bcrypt.hash("123456", 32);
 
     await queryInterface.bulkInsert(
-      "users", // Tên bảng
+      "users",
       [
         {
-          id: UUIDV4(), // Tạo UUID cho người dùng
-          name: "Admin User",
-          email: "admin@example.com",
-          password: hashedPassword, // Mật khẩu đã mã hóa
-          roleId: "admin-role-id", // Giả sử bạn đã có một ID role trong bảng `roles`
-          status: "active", // Trạng thái người dùng
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
           id: UUIDV4(),
-          name: "Teacher User",
-          email: "teacher@example.com",
+          username: "adminuser",
+          email: "admin@example.com",
           password: hashedPassword,
-          roleId: "teacher-role-id",
+          roleId: adminRole[0],
           status: "active",
           createdAt: new Date(),
           updatedAt: new Date(),
         },
         {
           id: UUIDV4(),
-          name: "Student User",
+          username: "teacheruser",
+          email: "teacher@example.com",
+          password: hashedPassword,
+          roleId: teacherRole[0],
+          status: "active",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: UUIDV4(),
+          username: "studentuser",
           email: "student@example.com",
           password: hashedPassword,
-          roleId: "student-role-id",
+          roleId: studentRole[0],
           status: "active",
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -47,7 +69,6 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    // Xóa tất cả người dùng khi rollback
     await queryInterface.bulkDelete("users", null, {});
   },
 };

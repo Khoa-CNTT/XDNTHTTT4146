@@ -4,6 +4,7 @@ import SocialLogin from "../../components/student/SocialLogin";
 import InputField from "../../components/student/InputField";
 import Button from "../../components/student/Button";
 import { loginUser } from "../../api/userApi";
+import { Link } from "react-router-dom";
 
 const Login = ({ onLogin }) => {
   const [formData, setFormData] = useState({
@@ -13,14 +14,12 @@ const Login = ({ onLogin }) => {
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate(); // Hook điều hướng
+  const navigate = useNavigate();
 
-  // Xử lý thay đổi input
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Gọi API đăng nhập
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -28,7 +27,7 @@ const Login = ({ onLogin }) => {
 
     try {
       const response = await loginUser(formData);
-      const { token, user } = response.data.login; // Giả sử API trả về user info
+      const { token, user } = response.data.login;
 
       console.log("Login success:", user);
       alert("Đăng nhập thành công!");
@@ -70,7 +69,12 @@ const Login = ({ onLogin }) => {
           value={formData.password}
           onChange={handleChange}
         />
-        <a href="./ForgotPassword">Forget Your Password?</a>
+        <Link
+          to="/forgot-password"
+          className="text-sm text-blue-500 hover:underline"
+        >
+          Forget Your Password?
+        </Link>
         {error && <p style={{ color: "red" }}>{error}</p>}
         <Button
           text={loading ? "Signing in..." : "Sign In"}
