@@ -1,6 +1,11 @@
 const { gql } = require("apollo-server-express");
 
 const courseTypeDefs = gql`
+  enum CourseStatus {
+    active
+    inactive
+  }
+
   type Course {
     id: ID!
     name: String!
@@ -12,9 +17,10 @@ const courseTypeDefs = gql`
     updatedAt: String
   }
 
-  enum CourseStatus {
-    active
-    inactive
+  type CourseResponse {
+    success: Boolean!
+    message: String!
+    course: Course
   }
 
   input CreateCourseInput {
@@ -22,7 +28,7 @@ const courseTypeDefs = gql`
     description: String
     price: Float!
     image: String
-    status: CourseStatus
+    status: CourseStatus = active
   }
 
   input UpdateCourseInput {
@@ -34,14 +40,14 @@ const courseTypeDefs = gql`
   }
 
   type Query {
-    getAllCourses: [Course]
+    getAllCourses: [Course!]!
     getCourseById(id: ID!): Course
   }
 
   type Mutation {
-    createCourse(input: CreateCourseInput!): Course
-    updateCourse(id: ID!, input: UpdateCourseInput!): Course
-    deleteCourse(id: ID!): Boolean
+    createCourse(input: CreateCourseInput!): CourseResponse!
+    updateCourse(id: ID!, input: UpdateCourseInput!): CourseResponse!
+    deleteCourse(id: ID!): CourseResponse!
   }
 `;
 

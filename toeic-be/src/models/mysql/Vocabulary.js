@@ -1,8 +1,11 @@
 const { DataTypes, Model } = require("sequelize");
 const { sequelize } = require("../../config/mysql");
-const VocabularyGarden = require("./VocabularyGarden");
 
-class Vocabulary extends Model {}
+class Vocabulary extends Model {
+  static associate(models) {
+    Vocabulary.hasMany(models.VocabularyGarden, { foreignKey: "vocabularyId" });
+  }
+}
 
 Vocabulary.init(
   {
@@ -22,17 +25,9 @@ Vocabulary.init(
     },
     pronunciation: {
       type: DataTypes.STRING,
-      unique: true,
     },
     example: {
       type: DataTypes.STRING,
-    },
-    vocabularyGardenId: {
-      type: DataTypes.UUID,
-      references: {
-        model: VocabularyGarden,
-        key: "id",
-      },
     },
   },
   {

@@ -1,6 +1,6 @@
 const { gql } = require("apollo-server-express");
 
-module.exports = gql`
+const lessonTypeDefs = gql`
   type Lesson {
     id: ID!
     title: String!
@@ -44,4 +44,4 @@ module.exports = gql`
   }
 `;
 
-module.exports = { typeDefs: lessonTypeDefs };
+module.exports = { lessonTypeDefs };

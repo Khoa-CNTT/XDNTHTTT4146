@@ -1,21 +1,7 @@
 const { Model, DataTypes } = require("sequelize");
 const { sequelize } = require("../../config/mysql");
 
-class Game extends Model {
-  static associate(models) {
-    // Mỗi trò chơi sẽ thuộc về một người dùng (User)
-    this.belongsTo(models.User, {
-      foreignKey: "userId",
-      as: "user",
-    });
-
-    // Mỗi trò chơi có thể có nhiều phiên chơi (GameSession)
-    this.hasMany(models.GameSession, {
-      foreignKey: "gameId",
-      as: "sessions",
-    });
-  }
-}
+class Game extends Model {}
 
 Game.init(
   {

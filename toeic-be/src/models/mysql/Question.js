@@ -1,16 +1,16 @@
 const { DataTypes, Model } = require("sequelize");
 const { sequelize } = require("../../config/mysql");
 
-class MockQuestion extends Model {
+class Question extends Model {
   static associate(models) {
-    MockQuestion.belongsTo(models.MockTest, {
+    Question.belongsTo(models.MockTest, {
       foreignKey: "mock_test_id",
       onDelete: "CASCADE",
     });
   }
 }
 
-MockQuestion.init(
+Question.init(
   {
     id: {
       type: DataTypes.UUID,
@@ -72,10 +72,11 @@ MockQuestion.init(
   },
   {
     sequelize,
-    modelName: "MockQuestion",
-    tableName: "mock_questions",
+    modelName: "Question",
+    tableName: "questions",
     timestamps: true,
+    underscored: true,
   }
 );
 
-module.exports = MockQuestion;
+module.exports = Question;

@@ -34,7 +34,7 @@ const sequelize = new Sequelize(
 
 const connectMySQL = async () => {
   try {
-    await createDatabaseIfNotExists(); // Tạo database nếu chưa có
+    await createDatabaseIfNotExists();
     await sequelize.authenticate();
     console.log("MySQL connected successfully!");
 

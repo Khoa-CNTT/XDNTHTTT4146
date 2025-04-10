@@ -1,6 +1,12 @@
 const { gql } = require("apollo-server-express");
 
-const coinTransactionTypeDefs = gql`
+const coinTransactionSchema = gql`
+  enum CoinTransactionType {
+    earn
+    spend
+    purchase
+  }
+
   type CoinTransaction {
     id: ID!
     userId: ID!
@@ -12,12 +18,6 @@ const coinTransactionTypeDefs = gql`
     updatedAt: String
   }
 
-  enum CoinTransactionType {
-    earn
-    spend
-    purchase
-  }
-
   input CreateCoinTransactionInput {
     userId: ID!
     type: CoinTransactionType!
@@ -26,15 +26,15 @@ const coinTransactionTypeDefs = gql`
     referenceId: ID
   }
 
-  type Query {
+  extend type Query {
     getCoinTransactionsByUser(userId: ID!): [CoinTransaction]
     getCoinTransactionById(id: ID!): CoinTransaction
     getAllCoinTransactions: [CoinTransaction]
   }
 
-  type Mutation {
+  extend type Mutation {
     createCoinTransaction(input: CreateCoinTransactionInput!): CoinTransaction
   }
 `;
 
-module.exports = { typeDefs: coinTransactionTypeDefs };
+module.exports = { coinTransactionSchema };

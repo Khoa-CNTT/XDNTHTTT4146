@@ -15,20 +15,25 @@ const UserItemSchema = new mongoose.Schema(
     quantity: {
       type: Number,
       default: 1,
-      min: 1,
+      min: 0,
     },
     acquiredAt: {
       type: Date,
       default: Date.now,
     },
+    expiresAt: {
+      type: Date, // nếu item có thời hạn
+    },
     isActive: {
       type: Boolean,
       default: true,
+    },
+    isLocked: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true }
 );
 
-const UserItem = mongoose.model("UserItem", UserItemSchema);
-
-module.exports = UserItem;
+module.exports = mongoose.model("UserItem", UserItemSchema);

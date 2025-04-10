@@ -5,15 +5,17 @@ const express = require("express");
 const cors = require("cors");
 const passport = require("passport");
 const session = require("express-session");
+const initDatabase = require("./config/initDatabase"); // <<== Thêm dòng này
 const { createApolloServer } = require("./config/graphql");
 const errorHandler = require("./middlewares/errorHandler");
 const imageUploadRouter = require("./routes/imageUpload");
 
 const app = express();
 
+// CORS cho frontend
 app.use(
   cors({
-    origin: "http://localhost:5173" || "http://127.0.0.1:5173",
+    origin: ["http://localhost:5173"],
     credentials: true,
   })
 );
@@ -21,17 +23,17 @@ app.use(
 // Cấu hình session
 app.use(
   session({
-    secret: process.env.SESSION_SECRET, // Secret session từ .env
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
   })
 );
 
-// Khởi tạo passport
+// Passport
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Route bắt đầu quá trình đăng nhập với Google
+// Google Auth routes
 app.get(
   "/auth/google",
   passport.authenticate("google", {
@@ -39,25 +41,25 @@ app.get(
   })
 );
 
-// Route callback của Google
 app.get(
   "/auth/google/callback",
   passport.authenticate("google", { failureRedirect: "/login" }),
   (req, res) => {
-    // Sau khi Google login thành công, bạn có thể redirect về frontend và gửi token
-    const token = req.user; // Token hoặc thông tin người dùng
+    const token = req.user; // Đây là user object bạn gán từ Passport
     res.redirect(`http://localhost:5173/auth/callback?token=${token.id}`);
   }
 );
 
-// Cấu hình các route khác
+// Middleware
 app.use(express.json());
 app.use("/api", imageUploadRouter);
 app.use(errorHandler);
 
-// Khởi động server GraphQL
+// Khởi động server
 const startServer = async () => {
   try {
+    await initDatabase();
+
     const { app: apolloApp, server } = await createApolloServer(app);
 
     const PORT = process.env.PORT || 4000;

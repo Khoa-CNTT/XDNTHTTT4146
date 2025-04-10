@@ -40,4 +40,4 @@ const rewardSchema = gql`
   }
 `;
 
-module.exports = rewardSchema;
+module.exports = { rewardSchema };

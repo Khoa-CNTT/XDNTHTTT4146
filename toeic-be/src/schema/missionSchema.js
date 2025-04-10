@@ -1,6 +1,6 @@
 const { gql } = require("apollo-server-express");
 
-module.exports = gql`
+const missionTypeDefs = gql`
   enum MissionType {
     daily
     weekly
@@ -52,4 +52,4 @@ module.exports = gql`
   }
 `;
 
-module.exports = { typeDefs: missionTypeDefs };
+module.exports = { missionTypeDefs };

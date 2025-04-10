@@ -1,5 +1,6 @@
 const { DataTypes, Model } = require("sequelize");
 const { sequelize } = require("../../config/mysql");
+
 class User extends Model {}
 
 User.init(
@@ -18,6 +19,9 @@ User.init(
       type: DataTypes.STRING,
       allowNull: false,
       unique: true,
+      validate: {
+        isEmail: true,
+      },
     },
     password: {
       type: DataTypes.STRING,
@@ -27,6 +31,14 @@ User.init(
       type: DataTypes.ENUM("Admin", "Teacher", "Student"),
       defaultValue: "Student",
     },
+    avatar: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    isBanned: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
   },
   {
     sequelize,
@@ -34,6 +46,7 @@ User.init(
     tableName: "users",
     timestamps: true,
     paranoid: true,
+    underscored: true,
   }
 );
 

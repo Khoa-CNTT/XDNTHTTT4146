@@ -16,7 +16,6 @@ passport.use(
   )
 );
 
-// Serialize & deserialize để lưu session
 passport.serializeUser((user, done) => {
   done(null, user);
 });
