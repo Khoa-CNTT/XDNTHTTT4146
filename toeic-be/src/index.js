@@ -2,36 +2,16 @@ require("dotenv").config();
 require("./config/passport-config");
 
 const express = require("express");
-const cors = require("cors");
-const passport = require("passport");
-const session = require("express-session");
-const initDatabase = require("./config/initDatabase"); // <<== Thêm dòng này
+const initDatabase = require("./config/initDatabase");
 const { createApolloServer } = require("./config/graphql");
+const configureMiddleware = require("./middlewares/expressMiddleware");
 const errorHandler = require("./middlewares/errorHandler");
 const imageUploadRouter = require("./routes/imageUpload");
 
 const app = express();
 
-// CORS cho frontend
-app.use(
-  cors({
-    origin: ["http://localhost:5173"],
-    credentials: true,
-  })
-);
-
-// Cấu hình session
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: true,
-  })
-);
-
-// Passport
-app.use(passport.initialize());
-app.use(passport.session());
+// Cấu hình middleware tách riêng
+configureMiddleware(app);
 
 // Google Auth routes
 app.get(
@@ -45,14 +25,15 @@ app.get(
   "/auth/google/callback",
   passport.authenticate("google", { failureRedirect: "/login" }),
   (req, res) => {
-    const token = req.user; // Đây là user object bạn gán từ Passport
+    const token = req.user;
     res.redirect(`http://localhost:5173/auth/callback?token=${token.id}`);
   }
 );
 
-// Middleware
-app.use(express.json());
+// API routes
 app.use("/api", imageUploadRouter);
+
+// Middleware xử lý lỗi
 app.use(errorHandler);
 
 // Khởi động server

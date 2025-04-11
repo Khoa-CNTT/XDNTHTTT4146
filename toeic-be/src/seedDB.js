@@ -17,6 +17,9 @@ const seedersMySQL = [
   "games",
   "leaderboard",
   "badges",
+  "items",
+  "shops",
+  "towerLevel",
 ];
 
 const seedersMongo = [

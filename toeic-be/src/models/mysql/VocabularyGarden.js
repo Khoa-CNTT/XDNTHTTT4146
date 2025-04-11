@@ -38,6 +38,23 @@ VocabularyGarden.init(
       type: DataTypes.INTEGER,
       defaultValue: 0,
     },
+
+    plantedAt: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+    harvestedAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    wateringCount: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
+    lastInteractedAt: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
   },
   {
     sequelize,

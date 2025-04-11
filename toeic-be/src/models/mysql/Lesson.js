@@ -3,13 +3,15 @@ const { sequelize } = require("../../config/mysql");
 
 class Lesson extends Model {
   static associate(models) {
-    Lesson.belongsTo(models.Course, {
+    this.belongsTo(models.Course, {
       foreignKey: "courseId",
+      as: "course",
       onDelete: "CASCADE",
     });
 
-    Lesson.hasMany(models.Question, {
+    this.hasMany(models.Question, {
       foreignKey: "lessonId",
+      as: "questions",
       onDelete: "CASCADE",
     });
   }
@@ -31,16 +33,34 @@ Lesson.init(
       allowNull: true,
     },
     content: {
-      type: DataTypes.TEXT,
+      type: DataTypes.TEXT("long"),
       allowNull: false,
+      comment: "Nội dung HTML hoặc markdown mô tả bài học",
     },
     videoUrl: {
       type: DataTypes.STRING,
       allowNull: true,
+      validate: {
+        isUrl: true,
+      },
     },
     order: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      validate: {
+        min: 0,
+      },
+      comment: "Vị trí bài học trong khóa học",
+    },
+    type: {
+      type: DataTypes.ENUM("reading", "listening", "video", "quiz", "grammar"),
+      defaultValue: "reading",
+      comment: "Phân loại bài học để tuỳ biến UI/UX hiển thị",
+    },
+    isPreviewable: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      comment: "Cho phép người dùng học thử không cần đăng ký",
     },
     courseId: {
       type: DataTypes.UUID,
@@ -53,9 +73,11 @@ Lesson.init(
   },
   {
     sequelize,
+    modelName: "Lesson",
     tableName: "lessons",
     timestamps: true,
     paranoid: true,
+    indexes: [{ fields: ["courseId"] }, { fields: ["order"] }],
   }
 );
 

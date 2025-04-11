@@ -1,6 +1,5 @@
 const { DataTypes, Model } = require("sequelize");
 const { sequelize } = require("../../config/mysql");
-const User = require("./User");
 
 class ExpHistory extends Model {}
 
@@ -15,13 +14,35 @@ ExpHistory.init(
       type: DataTypes.UUID,
       allowNull: false,
       references: {
-        model: User,
+        model: "users",
         key: "id",
       },
     },
     source: {
-      type: DataTypes.ENUM("lesson", "game", "mission", "event"),
+      type: DataTypes.ENUM(
+        "lesson",
+        "quiz",
+        "game",
+        "mission",
+        "event",
+        "vocabulary",
+        "admin",
+        "daily_mission",
+        "challenge"
+      ),
       allowNull: false,
+    },
+    sourceId: {
+      type: DataTypes.UUID,
+      allowNull: true,
+    },
+    vocabularyId: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      references: {
+        model: "vocabulary",
+        key: "id",
+      },
     },
     exp: {
       type: DataTypes.INTEGER,
@@ -31,15 +52,22 @@ ExpHistory.init(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    metadata: {
+      type: DataTypes.JSON,
+      allowNull: true,
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
   },
   {
     sequelize,
     modelName: "ExpHistory",
-    timestamps: true, // Tự động tạo `createdAt` và `updatedAt`
+    tableName: "exp_history",
+    timestamps: true,
+    updatedAt: false,
   }
 );
-
-// Thiết lập quan hệ
-ExpHistory.belongsTo(User, { foreignKey: "userId", onDelete: "CASCADE" });
 
 module.exports = ExpHistory;

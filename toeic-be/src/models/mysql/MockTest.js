@@ -3,19 +3,19 @@ const { sequelize } = require("../../config/mysql");
 
 class MockTest extends Model {
   static associate(models) {
-    MockTest.hasMany(models.MockQuestion, {
+    this.hasMany(models.MockQuestion, {
       foreignKey: "mock_test_id",
       as: "questions",
       onDelete: "CASCADE",
     });
 
-    MockTest.hasMany(models.MockResult, {
+    this.hasMany(models.MockResult, {
       foreignKey: "mock_test_id",
       as: "results",
       onDelete: "CASCADE",
     });
 
-    MockTest.belongsTo(models.User, {
+    this.belongsTo(models.User, {
       foreignKey: "created_by",
       as: "creator",
     });
@@ -60,10 +60,22 @@ MockTest.init(
       defaultValue: "medium",
     },
 
+    tags: {
+      type: DataTypes.ARRAY(DataTypes.STRING),
+      allowNull: true,
+      comment: "Gắn nhãn như: [“toeic-listening”, “practice-part7”]",
+    },
+
     is_active: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: true,
+    },
+
+    is_public: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+      comment: "Nếu là false thì chỉ admin hoặc người tạo mới thấy",
     },
 
     created_by: {
@@ -80,7 +92,8 @@ MockTest.init(
     modelName: "MockTest",
     tableName: "mock_tests",
     timestamps: true,
-    paranoid: true, // Soft delete
+    paranoid: true,
+    indexes: [{ fields: ["created_by"] }, { fields: ["difficulty"] }],
   }
 );
 

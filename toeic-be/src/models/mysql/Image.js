@@ -1,14 +1,7 @@
 const { DataTypes, Model } = require("sequelize");
 const { sequelize } = require("../../config/mysql");
 
-class Image extends Model {
-  static associate(models) {
-    Image.belongsTo(models.Vocabulary, {
-      foreignKey: "vocabularyId",
-      as: "vocabulary",
-    });
-  }
-}
+class Image extends Model {}
 
 Image.init(
   {
@@ -17,17 +10,39 @@ Image.init(
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
-    vocabularyId: {
-      type: DataTypes.UUID,
-      allowNull: false,
-      references: {
-        model: "vocabularies",
-        key: "id",
-      },
-    },
     url: {
       type: DataTypes.STRING,
       allowNull: false,
+      validate: {
+        isUrl: true,
+      },
+    },
+    type: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    refId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      validate: {
+        isUUID: 4,
+      },
+    },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    tag: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    priority: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
+    metadata: {
+      type: DataTypes.JSON,
+      allowNull: true,
     },
   },
   {
@@ -36,6 +51,7 @@ Image.init(
     tableName: "images",
     timestamps: true,
     paranoid: true,
+    indexes: [{ fields: ["type", "refId"] }, { fields: ["tag"] }],
   }
 );
 

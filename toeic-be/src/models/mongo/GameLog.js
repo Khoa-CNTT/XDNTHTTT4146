@@ -22,7 +22,7 @@ const gameLogSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["win", "lose", "draw"],
+      enum: ["win", "lose", "draw", "pending", "abandoned"],
       required: true,
     },
     expEarned: {
@@ -33,14 +33,19 @@ const gameLogSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    refId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Event",
+    },
   },
   {
-    timestamps: true,
+    timestamps: { createdAt: true, updatedAt: false }, // Không cần cập nhật
   }
 );
 
 gameLogSchema.index({ userId: 1 });
 gameLogSchema.index({ gameId: 1 });
+gameLogSchema.index({ status: 1 });
 
 class GameLogClass {
   static async getUserGameLogs(

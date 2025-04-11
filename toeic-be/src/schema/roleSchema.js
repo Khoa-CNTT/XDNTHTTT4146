@@ -4,6 +4,8 @@ const roleSchema = gql`
   type Role {
     id: ID!
     name: String!
+    createdAt: String
+    updatedAt: String
   }
 
   input CreateRoleInput {
@@ -11,11 +13,11 @@ const roleSchema = gql`
   }
 
   input UpdateRoleInput {
-    id: ID!
     name: String!
   }
 
   type RolePayload {
+    success: Boolean!
     message: String!
     role: Role
   }
@@ -27,11 +29,11 @@ const roleSchema = gql`
 
   extend type Mutation {
     createRole(input: CreateRoleInput!): RolePayload!
-    updateRole(input: UpdateRoleInput!): RolePayload!
-    deleteRole(id: ID!): Boolean!
+    updateRole(id: ID!, input: UpdateRoleInput!): RolePayload!
+    deleteRole(id: ID!): RolePayload!
 
-    assignRoleToUser(userId: ID!, roleId: ID!): Boolean!
-    removeRoleFromUser(userId: ID!, roleId: ID!): Boolean!
+    assignRoleToUser(userId: ID!, roleId: ID!): RolePayload!
+    removeRoleFromUser(userId: ID!, roleId: ID!): RolePayload!
   }
 `;
 

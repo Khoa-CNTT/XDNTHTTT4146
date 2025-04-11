@@ -1,7 +1,40 @@
 const { DataTypes, Model } = require("sequelize");
 const { sequelize } = require("../../config/mysql");
 
-class Reward extends Model {}
+class Reward extends Model {
+  static associate(models) {
+    this.hasMany(models.UserReward, {
+      foreignKey: "rewardId",
+      as: "userRewards",
+    });
+
+    this.hasMany(models.Mission, {
+      foreignKey: "rewardId",
+      as: "missions",
+    });
+
+    this.belongsToMany(models.User, {
+      through: models.UserReward,
+      foreignKey: "rewardId",
+      otherKey: "userId",
+      as: "users",
+    });
+
+    this.belongsToMany(models.Mission, {
+      through: models.MissionReward,
+      foreignKey: "rewardId",
+      otherKey: "missionId",
+      as: "missionsRewarded",
+    });
+
+    this.belongsToMany(models.Payment, {
+      through: models.PaymentReward,
+      foreignKey: "rewardId",
+      otherKey: "paymentId",
+      as: "paymentRewards",
+    });
+  }
+}
 
 Reward.init(
   {
@@ -15,12 +48,25 @@ Reward.init(
       allowNull: false,
     },
     description: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: true,
     },
     image: {
       type: DataTypes.STRING,
       allowNull: true,
+    },
+    type: {
+      type: DataTypes.ENUM("badge", "coin", "exp", "voucher", "custom"),
+      allowNull: false,
+      defaultValue: "badge",
+    },
+    value: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    is_active: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
     },
   },
   {
@@ -28,30 +74,10 @@ Reward.init(
     modelName: "Reward",
     tableName: "rewards",
     timestamps: true,
+    paranoid: true,
+    underscored: true,
+    indexes: [{ fields: ["type"] }],
   }
 );
 
-// Tách phần association ra sau khi export
-const associateReward = (models) => {
-  Reward.hasMany(models.UserReward, { foreignKey: "rewardId" });
-  Reward.hasMany(models.Mission, { foreignKey: "rewardId" });
-  Reward.hasMany(models.Payment, { foreignKey: "rewardId" });
-
-  Reward.belongsToMany(models.User, {
-    through: models.UserReward,
-    foreignKey: "rewardId",
-  });
-
-  Reward.belongsToMany(models.Mission, {
-    through: models.MissionReward,
-    foreignKey: "rewardId",
-  });
-
-  Reward.belongsToMany(models.Payment, {
-    through: models.PaymentReward,
-    foreignKey: "rewardId",
-  });
-};
-
 module.exports = Reward;
-module.exports.associate = associateReward;

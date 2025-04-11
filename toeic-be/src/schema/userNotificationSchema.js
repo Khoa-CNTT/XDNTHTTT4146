@@ -1,11 +1,18 @@
 const { gql } = require("apollo-server-express");
 
-const systemNotificationSchema = gql`
+const userNotificationSchema = gql`
+  enum UserRole {
+    STUDENT
+    TEACHER
+    ADMIN
+    ALL
+  }
+
   type SystemNotification {
     id: ID!
     title: String!
     description: String!
-    targetRole: String!
+    targetRole: UserRole!
     isActive: Boolean!
     sender: User
     createdAt: String
@@ -15,14 +22,14 @@ const systemNotificationSchema = gql`
   input CreateSystemNotificationInput {
     title: String!
     description: String!
-    targetRole: String!
+    targetRole: UserRole! # Enum để tránh nhập sai chuỗi
   }
 
   input UpdateSystemNotificationInput {
     id: ID!
     title: String
     description: String
-    targetRole: String
+    targetRole: UserRole
     isActive: Boolean
   }
 
@@ -32,7 +39,7 @@ const systemNotificationSchema = gql`
   }
 
   extend type Query {
-    getSystemNotifications(role: String!): [SystemNotification!]!
+    getSystemNotifications(role: UserRole!): [SystemNotification!]!
     getSystemNotificationById(id: ID!): SystemNotification
   }
 
@@ -40,10 +47,12 @@ const systemNotificationSchema = gql`
     createSystemNotification(
       input: CreateSystemNotificationInput!
     ): NotificationPayload!
+
     updateSystemNotification(
       input: UpdateSystemNotificationInput!
     ): NotificationPayload!
-    deleteSystemNotification(id: ID!): Boolean!
+
+    deleteSystemNotification(id: ID!): NotificationPayload!
   }
 `;
 

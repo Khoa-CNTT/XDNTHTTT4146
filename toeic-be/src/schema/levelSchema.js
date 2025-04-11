@@ -1,6 +1,6 @@
 const { gql } = require("apollo-server-express");
 
-module.exports = gql`
+const levelTypeDefs = gql`
   type Level {
     id: ID!
     levelName: String!
@@ -36,3 +36,5 @@ module.exports = gql`
     deleteLevel(id: ID!): Boolean
   }
 `;
+
+module.exports = { typeDefs: levelTypeDefs };

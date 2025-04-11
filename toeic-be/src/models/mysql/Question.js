@@ -3,8 +3,9 @@ const { sequelize } = require("../../config/mysql");
 
 class Question extends Model {
   static associate(models) {
-    Question.belongsTo(models.MockTest, {
+    this.belongsTo(models.MockTest, {
       foreignKey: "mock_test_id",
+      as: "mockTest",
       onDelete: "CASCADE",
     });
   }
@@ -17,7 +18,6 @@ Question.init(
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
-
     mock_test_id: {
       type: DataTypes.UUID,
       allowNull: false,
@@ -27,46 +27,49 @@ Question.init(
       },
       onDelete: "CASCADE",
     },
-
+    part: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      validate: { min: 1, max: 7 },
+    },
     question_text: {
       type: DataTypes.TEXT,
       allowNull: false,
     },
-
     options: {
       type: DataTypes.JSON,
       allowNull: false,
     },
-
     correct_answer: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(1),
       allowNull: false,
       validate: {
         isIn: [["A", "B", "C", "D"]],
       },
     },
-
     explanation: {
       type: DataTypes.TEXT,
       allowNull: true,
     },
-
-    part: {
-      type: DataTypes.INTEGER,
+    difficulty: {
+      type: DataTypes.ENUM("easy", "medium", "hard"),
+      defaultValue: "medium",
       allowNull: false,
-      validate: {
-        min: 1,
-        max: 7,
-      },
     },
-
     audio_url: {
       type: DataTypes.STRING,
       allowNull: true,
     },
-
     image_url: {
       type: DataTypes.STRING,
+      allowNull: true,
+    },
+    is_active: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    },
+    tags: {
+      type: DataTypes.ARRAY(DataTypes.STRING),
       allowNull: true,
     },
   },
@@ -76,6 +79,12 @@ Question.init(
     tableName: "questions",
     timestamps: true,
     underscored: true,
+    paranoid: true,
+    indexes: [
+      { fields: ["mock_test_id"] },
+      { fields: ["part"] },
+      { fields: ["difficulty"] },
+    ],
   }
 );
 

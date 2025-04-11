@@ -1,39 +1,51 @@
 const fs = require("fs");
 const path = require("path");
+const chalk = require("chalk");
 const { sequelize } = require("../config/mysql");
+require("../config/mongo");
 
 const mysqlModels = {};
 const mongodbModels = {};
 
-// Load MySQL models
 const mysqlPath = path.join(__dirname, "mysql");
 fs.readdirSync(mysqlPath).forEach((file) => {
-  if (file.endsWith(".js") && file !== "index.js") {
-    const model = require(path.join(mysqlPath, file));
+  if (!file.endsWith(".js") || file === "index.js") return;
+
+  const fullPath = path.join(mysqlPath, file);
+  try {
+    const model = require(fullPath);
     mysqlModels[model.name] = model;
-    console.log(`✅ MySQL model loaded: ${model.name}`);
+    console.log(chalk.green(`✅ MySQL model loaded: ${model.name}`));
+  } catch (err) {
+    console.error(chalk.red(`❌ Failed to load MySQL model: ${file}\n${err}`));
   }
 });
 
-// Initialize & associate MySQL models
 Object.values(mysqlModels).forEach((model) => {
-  if (typeof model.init === "function") model.init(sequelize);
-});
-Object.values(mysqlModels).forEach((model) => {
-  if (typeof model.associate === "function") model.associate(mysqlModels);
+  if (typeof model.associate === "function") {
+    model.associate(mysqlModels);
+  }
 });
 
-// Load MongoDB models
 const mongodbPath = path.join(__dirname, "mongo");
 fs.readdirSync(mongodbPath).forEach((file) => {
-  if (file.endsWith(".js") && file !== "index.js") {
-    const model = require(path.join(mongodbPath, file));
+  if (!file.endsWith(".js") || file === "index.js") return;
+
+  const fullPath = path.join(mongodbPath, file);
+  try {
+    const model = require(fullPath);
     mongodbModels[model.modelName] = model;
-    console.log(`✅ MongoDB model loaded: ${model.modelName}`);
+    console.log(chalk.cyan(`✅ MongoDB model loaded: ${model.modelName}`));
+  } catch (err) {
+    console.error(
+      chalk.red(`❌ Failed to load MongoDB model: ${file}\n${err}`)
+    );
   }
 });
 
 module.exports = {
+  ...mysqlModels,
+  ...mongodbModels,
   mysqlModels,
   mongodbModels,
   sequelize,

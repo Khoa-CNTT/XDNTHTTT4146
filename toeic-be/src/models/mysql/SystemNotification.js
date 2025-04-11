@@ -1,7 +1,19 @@
 const { DataTypes, Model } = require("sequelize");
 const { sequelize } = require("../../config/mysql");
 
-class SystemNotification extends Model {}
+class SystemNotification extends Model {
+  static associate(models) {
+    this.belongsTo(models.User, {
+      foreignKey: "senderId",
+      as: "sender",
+    });
+
+    this.belongsTo(models.User, {
+      foreignKey: "targetUserId",
+      as: "targetUser",
+    });
+  }
+}
 
 SystemNotification.init(
   {
@@ -18,18 +30,39 @@ SystemNotification.init(
       type: DataTypes.TEXT,
       allowNull: false,
     },
+    type: {
+      type: DataTypes.ENUM("info", "warning", "achievement", "event", "system"),
+      allowNull: false,
+      defaultValue: "info",
+    },
+    targetRole: {
+      type: DataTypes.ENUM("student", "teacher", "admin", "all"),
+      allowNull: false,
+      defaultValue: "all",
+    },
+    targetUserId: {
+      type: DataTypes.UUID,
+      allowNull: true,
+    },
     senderId: {
       type: DataTypes.UUID,
       allowNull: false,
     },
-    targetRole: {
-      type: DataTypes.ENUM("student", "teacher", "all"),
-      allowNull: false,
-      defaultValue: "all",
-    },
     isActive: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
+    },
+    startAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    endAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    priority: {
+      type: DataTypes.INTEGER,
+      defaultValue: 1,
     },
   },
   {
@@ -37,14 +70,16 @@ SystemNotification.init(
     modelName: "SystemNotification",
     tableName: "system_notifications",
     timestamps: true,
+    paranoid: true,
+    underscored: true,
+    indexes: [
+      { fields: ["targetRole"] },
+      { fields: ["isActive"] },
+      { fields: ["startAt", "endAt"] },
+      { fields: ["senderId"] },
+      { fields: ["targetUserId"] },
+    ],
   }
 );
-
-SystemNotification.associate = (models) => {
-  SystemNotification.belongsTo(models.User, {
-    foreignKey: "senderId",
-    as: "sender",
-  });
-};
 
 module.exports = SystemNotification;

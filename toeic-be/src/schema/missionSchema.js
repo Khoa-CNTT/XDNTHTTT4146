@@ -5,6 +5,7 @@ const missionTypeDefs = gql`
     daily
     weekly
     event
+    custom
   }
 
   type Mission {
@@ -13,43 +14,45 @@ const missionTypeDefs = gql`
     description: String
     type: MissionType!
     goal: Int!
-    reward_exp: Int!
-    reward_coins: Int!
-    is_active: Boolean!
-    createdAt: String
-    updatedAt: String
+    action: String!
+    rewardExp: Int!
+    rewardCoins: Int!
+    isActive: Boolean!
+    startDate: String
+    endDate: String
+    createdAt: String!
+    updatedAt: String!
   }
 
-  input CreateMissionInput {
+  input MissionInput {
     title: String!
     description: String
-    type: MissionType!
-    goal: Int!
-    reward_exp: Int!
-    reward_coins: Int!
-    is_active: Boolean
-  }
-
-  input UpdateMissionInput {
-    title: String
-    description: String
     type: MissionType
-    goal: Int
-    reward_exp: Int
-    reward_coins: Int
-    is_active: Boolean
+    goal: Int!
+    action: String!
+    rewardExp: Int
+    rewardCoins: Int
+    isActive: Boolean
+    startDate: String
+    endDate: String
   }
 
-  type Query {
-    getAllMissions: [Mission]
+  type MissionResponse {
+    status: Boolean!
+    msg: String!
+    mission: Mission
+  }
+
+  extend type Query {
+    getMissions(type: MissionType, activeOnly: Boolean): [Mission!]!
     getMissionById(id: ID!): Mission
   }
 
-  type Mutation {
-    createMission(input: CreateMissionInput!): Mission
-    updateMission(id: ID!, input: UpdateMissionInput!): Mission
-    deleteMission(id: ID!): Boolean
+  extend type Mutation {
+    createMission(input: MissionInput!): MissionResponse!
+    updateMission(id: ID!, input: MissionInput!): MissionResponse!
+    deleteMission(id: ID!): MissionResponse!
   }
 `;
 
-module.exports = { missionTypeDefs };
+module.exports = { typeDefs: missionTypeDefs };

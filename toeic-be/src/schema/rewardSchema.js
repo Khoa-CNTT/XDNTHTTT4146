@@ -6,38 +6,46 @@ const rewardSchema = gql`
     name: String!
     description: String
     image: String
-    createdAt: String!
-    updatedAt: String!
+    type: RewardType!
+    value: Int
+    is_active: Boolean!
+    createdAt: String
+    updatedAt: String
+
+    userRewards: [UserReward!]
+    missions: [Mission!]
+    missionsRewarded: [Mission!]
+    users: [User!]
+    paymentRewards: [Payment!]
   }
 
-  input CreateRewardInput {
-    name: String!
-    description: String
-    image: String
-  }
-
-  input UpdateRewardInput {
-    id: ID!
-    name: String
-    description: String
-    image: String
-  }
-
-  type RewardPayload {
-    message: String!
-    reward: Reward
+  enum RewardType {
+    badge
+    coin
+    exp
+    voucher
+    custom
   }
 
   extend type Query {
-    getAllRewards: [Reward!]!
+    getAllRewards(activeOnly: Boolean): [Reward!]
     getRewardById(id: ID!): Reward
   }
 
   extend type Mutation {
-    createReward(input: CreateRewardInput!): RewardPayload!
-    updateReward(input: UpdateRewardInput!): RewardPayload!
+    createReward(input: RewardInput!): Reward!
+    updateReward(id: ID!, input: RewardInput!): Reward!
     deleteReward(id: ID!): Boolean!
+  }
+
+  input RewardInput {
+    name: String!
+    description: String
+    image: String
+    type: RewardType!
+    value: Int
+    is_active: Boolean
   }
 `;
 
-module.exports = { rewardSchema };
+module.exports = rewardSchema;

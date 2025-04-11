@@ -26,28 +26,29 @@ UserReward.init(
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
-
     userId: {
       type: DataTypes.UUID,
       allowNull: false,
-      references: {
-        model: "users",
-        key: "id",
-      },
     },
-
     rewardId: {
       type: DataTypes.UUID,
       allowNull: false,
-      references: {
-        model: "rewards",
-        key: "id",
-      },
     },
-
+    sourceType: {
+      type: DataTypes.ENUM("Mission", "Payment", "MiniGame", "Event"),
+      allowNull: false,
+    },
+    sourceId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+    },
     receivedAt: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
+    },
+    note: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
   },
   {
@@ -55,6 +56,12 @@ UserReward.init(
     modelName: "UserReward",
     tableName: "user_rewards",
     timestamps: false,
+    indexes: [
+      {
+        unique: true,
+        fields: ["userId", "rewardId", "sourceType", "sourceId"],
+      },
+    ],
   }
 );
 

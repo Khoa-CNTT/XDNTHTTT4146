@@ -1,6 +1,22 @@
 const { gql } = require("apollo-server-express");
 
-const lessonTypeDefs = gql`
+const lessonSchema = gql`
+  scalar DateTime
+
+  enum LessonType {
+    reading
+    listening
+    video
+    quiz
+    grammar
+  }
+
+  type Question {
+    id: ID!
+    content: String!
+    # Có thể mở rộng thêm các trường như choices, correctAnswer...
+  }
+
   type Lesson {
     id: ID!
     title: String!
@@ -8,11 +24,12 @@ const lessonTypeDefs = gql`
     content: String!
     videoUrl: String
     order: Int!
+    type: LessonType!
+    isPreviewable: Boolean!
     courseId: ID!
-    course: Course
-    questions: [Question]
-    createdAt: String
-    updatedAt: String
+    createdAt: DateTime!
+    updatedAt: DateTime
+    questions: [Question!]!
   }
 
   input CreateLessonInput {
@@ -21,6 +38,8 @@ const lessonTypeDefs = gql`
     content: String!
     videoUrl: String
     order: Int!
+    type: LessonType
+    isPreviewable: Boolean
     courseId: ID!
   }
 
@@ -30,18 +49,27 @@ const lessonTypeDefs = gql`
     content: String
     videoUrl: String
     order: Int
+    type: LessonType
+    isPreviewable: Boolean
   }
 
-  type Query {
-    getLessonsByCourse(courseId: ID!): [Lesson]
+  type LessonResponse {
+    success: Boolean!
+    message: String!
+    lesson: Lesson
+  }
+
+  extend type Query {
     getLessonById(id: ID!): Lesson
+    getLessonsByCourse(courseId: ID!): [Lesson!]!
+    getPreviewableLessons(courseId: ID): [Lesson!]!
   }
 
-  type Mutation {
-    createLesson(input: CreateLessonInput!): Lesson
-    updateLesson(id: ID!, input: UpdateLessonInput!): Lesson
-    deleteLesson(id: ID!): Boolean
+  extend type Mutation {
+    createLesson(input: CreateLessonInput!): LessonResponse!
+    updateLesson(id: ID!, input: UpdateLessonInput!): LessonResponse!
+    deleteLesson(id: ID!): LessonResponse!
   }
 `;
 
-module.exports = { lessonTypeDefs };
+module.exports = { lessonSchema };

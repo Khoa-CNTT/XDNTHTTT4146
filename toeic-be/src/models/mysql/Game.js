@@ -1,7 +1,18 @@
 const { Model, DataTypes } = require("sequelize");
 const { sequelize } = require("../../config/mysql");
 
-class Game extends Model {}
+class Game extends Model {
+  static associate(models) {
+    this.belongsTo(models.User, {
+      foreignKey: "userId",
+      as: "user",
+      onDelete: "CASCADE",
+    });
+
+    // this.hasMany(models.GameSession, { foreignKey: "gameId", as: "sessions" });
+    // this.hasMany(models.GameResult, { foreignKey: "gameId", as: "results" });
+  }
+}
 
 Game.init(
   {
@@ -9,17 +20,13 @@ Game.init(
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
-      allowNull: false,
     },
     userId: {
       type: DataTypes.UUID,
       allowNull: false,
       references: {
-        model: "users",
+        model: "Users",
         key: "id",
-      },
-      validate: {
-        isUUID: true,
       },
     },
     name: {
@@ -34,12 +41,13 @@ Game.init(
       type: DataTypes.INTEGER,
       defaultValue: 0,
     },
+    maxScore: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
     status: {
-      type: DataTypes.ENUM("active", "completed", "paused"),
+      type: DataTypes.ENUM("active", "completed", "paused", "failed"),
       defaultValue: "active",
-      validate: {
-        isIn: [["active", "completed", "paused"]],
-      },
     },
     startDate: {
       type: DataTypes.DATE,
@@ -49,16 +57,26 @@ Game.init(
       type: DataTypes.DATE,
       allowNull: true,
     },
+    duration: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    mode: {
+      type: DataTypes.ENUM("solo", "timed", "challenge", "pvp"),
+      allowNull: false,
+      defaultValue: "solo",
+    },
   },
   {
     sequelize,
     modelName: "Game",
     tableName: "games",
     timestamps: true,
-    paranoid: true, // Xóa mềm  cho phép khôi phục lại khi cần thiết
+    paranoid: true,
     indexes: [
-      { unique: false, fields: ["userId"] }, // Tạo chỉ mục cho trường 'userId'
-      { unique: false, fields: ["status"] }, // Tạo chỉ mục cho trường 'status'
+      { fields: ["userId"] },
+      { fields: ["status"] },
+      { fields: ["mode"] },
     ],
   }
 );

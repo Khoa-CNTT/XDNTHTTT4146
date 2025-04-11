@@ -1,7 +1,16 @@
 const { DataTypes, Model } = require("sequelize");
 const { sequelize } = require("../../config/mysql");
 
-class WordMeaning extends Model {}
+class WordMeaning extends Model {
+  static associate(models) {
+    // Mỗi nghĩa thuộc về một từ vựng
+    this.belongsTo(models.Vocabulary, {
+      foreignKey: "vocabularyId",
+      as: "vocabulary",
+      onDelete: "CASCADE",
+    });
+  }
+}
 
 WordMeaning.init(
   {
@@ -13,23 +22,30 @@ WordMeaning.init(
     meaning: {
       type: DataTypes.STRING,
       allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
     },
     vocabularyId: {
       type: DataTypes.UUID,
-      references: {
-        model: Vocabulary,
-        key: "id",
-      },
+      allowNull: false,
+    },
+    partOfSpeech: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    language: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
   },
   {
     sequelize,
+    modelName: "WordMeaning",
     tableName: "word_meaning",
     timestamps: true,
+    underscored: true,
   }
 );
-
-Vocabulary.hasMany(WordMeaning, { foreignKey: "vocabularyId" });
-WordMeaning.belongsTo(Vocabulary, { foreignKey: "vocabularyId" });
 
 module.exports = WordMeaning;

@@ -19,33 +19,42 @@ Mission.init(
       allowNull: true,
     },
     type: {
-      type: DataTypes.ENUM("daily", "weekly", "event"),
+      type: DataTypes.ENUM("daily", "weekly", "event", "custom"),
       allowNull: false,
+      defaultValue: "daily",
     },
     goal: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    reward_exp: {
+    action: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    rewardExp: {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0,
-      validate: {
-        min: 0,
-      },
+      validate: { min: 0 },
     },
-    reward_coins: {
+    rewardCoins: {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0,
-      validate: {
-        min: 0,
-      },
+      validate: { min: 0 },
     },
-    is_active: {
+    isActive: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
       allowNull: false,
+    },
+    startDate: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    endDate: {
+      type: DataTypes.DATE,
+      allowNull: true,
     },
   },
   {
@@ -53,6 +62,8 @@ Mission.init(
     modelName: "Mission",
     tableName: "missions",
     timestamps: true,
+    paranoid: true,
+    indexes: [{ fields: ["type"] }, { fields: ["isActive"] }],
   }
 );
 

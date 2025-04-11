@@ -1,4 +1,4 @@
-const { DataTypes, Model } = require("sequelize");
+const { DataTypes, Model, Op } = require("sequelize");
 const { sequelize } = require("../../config/mysql");
 
 class CoinTransaction extends Model {}
@@ -17,27 +17,31 @@ CoinTransaction.init(
         model: "Users",
         key: "id",
       },
+      onUpdate: "CASCADE",
+      onDelete: "CASCADE",
     },
     type: {
       type: DataTypes.ENUM("earn", "spend", "purchase"),
       allowNull: false,
-      comment: "earn: Nhận xu, spend: Tiêu xu, purchase: Mua xu",
     },
     amount: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      comment: "Số lượng xu thay đổi (có thể là dương hoặc âm)",
+      validate: {
+        min: 1,
+      },
     },
     description: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(255),
       allowNull: true,
-      comment: "Mô tả chi tiết giao dịch",
     },
     referenceId: {
       type: DataTypes.UUID,
       allowNull: true,
-      comment:
-        "Liên kết đến ID giao dịch liên quan (game, bài học, thanh toán, v.v.)",
+    },
+    metadata: {
+      type: DataTypes.JSON,
+      allowNull: true,
     },
   },
   {
@@ -46,6 +50,19 @@ CoinTransaction.init(
     tableName: "coin_transactions",
     timestamps: true,
     paranoid: true,
+    defaultScope: {
+      where: { deletedAt: null },
+    },
+    scopes: {
+      withDeleted: {},
+      onlyDeleted: {
+        where: {
+          deletedAt: {
+            [Op.ne]: null,
+          },
+        },
+      },
+    },
   }
 );
 

@@ -1,42 +1,55 @@
 const { gql } = require("apollo-server-express");
 
-module.exports = gql`
+const gameSchema = gql`
+  scalar DateTime
+
   enum GameStatus {
     active
     completed
     paused
+    failed
+  }
+
+  enum GameMode {
+    solo
+    timed
+    challenge
+    pvp
   }
 
   type Game {
     id: ID!
     userId: ID!
-    user: User
     name: String!
     description: String
     score: Int
-    status: GameStatus
-    startDate: String
-    endDate: String
-    sessions: [GameSession]
+    maxScore: Int
+    status: GameStatus!
+    startDate: DateTime
+    endDate: DateTime
+    duration: Int
+    mode: GameMode!
+    createdAt: DateTime
+    updatedAt: DateTime
   }
 
-  input GameInput {
+  input CreateGameInput {
     userId: ID!
     name: String!
     description: String
-    score: Int
-    status: GameStatus
-    startDate: String
-    endDate: String
+    maxScore: Int
+    mode: GameMode = solo
   }
 
-  input GameUpdateInput {
+  input UpdateGameInput {
     name: String
     description: String
     score: Int
+    maxScore: Int
     status: GameStatus
-    startDate: String
-    endDate: String
+    endDate: DateTime
+    duration: Int
+    mode: GameMode
   }
 
   type GameResponse {
@@ -45,15 +58,17 @@ module.exports = gql`
     game: Game
   }
 
-  type Query {
-    games: [Game]
-    game(id: ID!): Game
-    gamesByUser(userId: ID!): [Game]
+  extend type Query {
+    getAllGames: [Game!]!
+    getGameById(id: ID!): Game
+    getGamesByUser(userId: ID!): [Game!]!
   }
 
-  type Mutation {
-    createGame(input: GameInput!): Game
-    updateGame(id: ID!, input: GameUpdateInput!): Game
-    deleteGame(id: ID!): GameResponse
+  extend type Mutation {
+    createGame(input: CreateGameInput!): GameResponse!
+    updateGame(id: ID!, input: UpdateGameInput!): GameResponse!
+    deleteGame(id: ID!): GameResponse!
   }
 `;
+
+module.exports = { gameSchema };

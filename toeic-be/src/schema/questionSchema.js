@@ -1,6 +1,8 @@
 const { gql } = require("apollo-server-express");
 
 const questionSchema = gql`
+  scalar JSON
+
   type MockQuestion {
     id: ID!
     mock_test_id: ID!
@@ -37,16 +39,25 @@ const questionSchema = gql`
     image_url: String
   }
 
+  type MockQuestionResponse {
+    success: Boolean!
+    message: String!
+    question: MockQuestion
+  }
+
   extend type Query {
     getMockQuestionsByTest(mock_test_id: ID!): [MockQuestion!]!
     getMockQuestionById(id: ID!): MockQuestion
   }
 
   extend type Mutation {
-    createMockQuestion(input: CreateQuestionInput!): MockQuestion!
-    updateMockQuestion(id: ID!, input: UpdateMockQuestionInput!): MockQuestion!
+    createMockQuestion(input: CreateQuestionInput!): MockQuestionResponse!
+    updateMockQuestion(
+      id: ID!
+      input: UpdateMockQuestionInput!
+    ): MockQuestionResponse!
     deleteMockQuestion(id: ID!): Boolean!
   }
 `;
 
-module.exports = { questionSchema };
+module.exports = questionSchema;

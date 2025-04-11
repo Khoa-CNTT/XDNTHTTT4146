@@ -1,13 +1,19 @@
 const { gql } = require("apollo-server-express");
 
 const shopSchema = gql`
+  enum ShopStatus {
+    ACTIVE
+    INACTIVE
+    MAINTENANCE
+  }
+
   type Shop {
     id: ID!
     name: String!
     description: String
     image: String
     location: String
-    status: String
+    status: ShopStatus!
     createdAt: String
     updatedAt: String
   }
@@ -17,19 +23,19 @@ const shopSchema = gql`
     description: String
     image: String
     location: String
-    status: String
+    status: ShopStatus = ACTIVE
   }
 
   input UpdateShopInput {
-    id: ID!
     name: String
     description: String
     image: String
     location: String
-    status: String
+    status: ShopStatus
   }
 
   type ShopPayload {
+    success: Boolean!
     message: String!
     shop: Shop
   }
@@ -41,8 +47,8 @@ const shopSchema = gql`
 
   extend type Mutation {
     createShop(input: CreateShopInput!): ShopPayload!
-    updateShop(input: UpdateShopInput!): ShopPayload!
-    deleteShop(id: ID!): Boolean!
+    updateShop(id: ID!, input: UpdateShopInput!): ShopPayload!
+    deleteShop(id: ID!): ShopPayload!
   }
 `;
 

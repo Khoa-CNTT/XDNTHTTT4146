@@ -1,6 +1,6 @@
 const { gql } = require("apollo-server-express");
 
-module.exports = gql`
+const leaderboardTypeDefs = gql`
   type Leaderboard {
     id: ID!
     user_id: ID!
@@ -33,3 +33,5 @@ module.exports = gql`
     deleteLeaderboard(id: ID!): Boolean
   }
 `;
+
+module.exports = { typeDefs: leaderboardTypeDefs };

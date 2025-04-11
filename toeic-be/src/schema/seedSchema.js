@@ -14,12 +14,11 @@ const seedSchema = gql`
   input CreateSeedInput {
     name: String!
     description: String
-    total_words: Int
+    total_words: Int = 0
     image: String
   }
 
   input UpdateSeedInput {
-    id: ID!
     name: String
     description: String
     total_words: Int
@@ -27,6 +26,7 @@ const seedSchema = gql`
   }
 
   type SeedPayload {
+    success: Boolean!
     message: String!
     seed: Seed
   }
@@ -38,8 +38,8 @@ const seedSchema = gql`
 
   extend type Mutation {
     createSeed(input: CreateSeedInput!): SeedPayload!
-    updateSeed(input: UpdateSeedInput!): SeedPayload!
-    deleteSeed(id: ID!): Boolean!
+    updateSeed(id: ID!, input: UpdateSeedInput!): SeedPayload!
+    deleteSeed(id: ID!): SeedPayload!
   }
 `;
 

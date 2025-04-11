@@ -1,4 +1,4 @@
-const { Lesson, Course } = require("../models"); // Import model Lesson & Course
+const { Lesson, Course } = require("../models/mysql");
 const {
   AuthenticationError,
   UserInputError,
@@ -6,9 +6,6 @@ const {
 
 const lessonResolver = {
   Query: {
-    /**
-     * Lấy danh sách tất cả bài học
-     */
     getLessons: async () => {
       try {
         return await Lesson.findAll({
@@ -20,9 +17,6 @@ const lessonResolver = {
       }
     },
 
-    /**
-     * Lấy bài học theo ID
-     */
     getLessonById: async (_, { id }) => {
       try {
         const lesson = await Lesson.findByPk(id, {
@@ -37,25 +31,26 @@ const lessonResolver = {
   },
 
   Mutation: {
-    /**
-     * Tạo bài học mới
-     */
     createLesson: async (_, { input }, { user }) => {
       if (!user) throw new AuthenticationError("Bạn cần đăng nhập.");
 
       try {
         const { title, content, courseId } = input;
+        if (!title || !content || !courseId)
+          throw new UserInputError("Thiếu thông tin bắt buộc để tạo bài học.");
 
-        // Kiểm tra khóa học tồn tại
         const course = await Course.findByPk(courseId);
         if (!course) throw new UserInputError("Khóa học không tồn tại.");
 
-        // Tạo bài học
+        const currentCount = await Lesson.count({ where: { courseId } });
+        const order = input.order ?? currentCount;
+
         const newLesson = await Lesson.create({
-          title,
-          content,
-          courseId,
+          ...input,
+          order,
         });
+
+        await newLesson.reload({ include: [{ model: Course, as: "course" }] });
 
         return {
           status: true,
@@ -66,7 +61,7 @@ const lessonResolver = {
         throw new Error("Lỗi khi tạo bài học: " + error.message);
       }
     },
-    // Cập nhật bài học
+
     updateLesson: async (_, { id, input }, { user }) => {
       if (!user) throw new AuthenticationError("Bạn cần đăng nhập.");
 
@@ -86,7 +81,6 @@ const lessonResolver = {
       }
     },
 
-    //Xóa bài học
     deleteLesson: async (_, { id }, { user }) => {
       if (!user) throw new AuthenticationError("Bạn cần đăng nhập.");
 

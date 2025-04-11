@@ -7,70 +7,56 @@ const leaderboardSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+
     totalExp: {
       type: Number,
       required: true,
+      default: 0,
     },
+
     rank: {
       type: Number,
       required: true,
+      min: 1,
     },
-    date: {
-      type: Date,
-      default: () => {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        return today;
+
+    type: {
+      type: String,
+      enum: ["daily", "weekly", "monthly", "event"],
+      required: true,
+      default: "daily",
+    },
+
+    scope: {
+      type: String,
+      enum: ["global", "tower", "garden", "event"],
+      default: "global",
+    },
+
+    scopeId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: function () {
+        return this.scope !== "global";
       },
+      refPath: "scopeModel",
+    },
+
+    scopeModel: {
+      type: String,
+      required: function () {
+        return this.scope !== "global";
+      },
+      enum: ["TowerLevel", "GardenLevel", "Event"],
+    },
+
+    period: {
+      type: String,
+      required: true,
+      comment:
+        "Chuỗi dạng ISO cho biết mốc thời gian, ví dụ: 2025-04-10 / 2025-W15 / 2025-04",
     },
   },
   {
     timestamps: true,
   }
 );
-
-leaderboardSchema.index({ date: 1 });
-leaderboardSchema.index({ totalExp: -1 });
-
-class LeaderboardClass {
-  /**
-   * Lấy top người chơi trong 1 ngày cụ thể
-   * @param {Date} date
-   * @param {number} limit
-   */
-  static async getTopPlayers({ date = new Date(), limit = 10 } = {}) {
-    const dayStart = new Date(date);
-    dayStart.setHours(0, 0, 0, 0);
-
-    const dayEnd = new Date(dayStart);
-    dayEnd.setDate(dayEnd.getDate() + 1);
-
-    return this.find({
-      date: { $gte: dayStart, $lt: dayEnd },
-    })
-      .sort({ totalExp: -1 })
-      .limit(limit)
-      .populate("userId");
-  }
-
-  static async upsertLeaderboard({
-    userId,
-    totalExp,
-    rank,
-    date = new Date(),
-  }) {
-    const cleanDate = new Date(date);
-    cleanDate.setHours(0, 0, 0, 0);
-
-    return this.findOneAndUpdate(
-      { userId, date: cleanDate },
-      { totalExp, rank },
-      { upsert: true, new: true }
-    );
-  }
-}
-
-leaderboardSchema.loadClass(LeaderboardClass);
-
-const Leaderboard = mongoose.model("Leaderboard", leaderboardSchema);
-module.exports = Leaderboard;

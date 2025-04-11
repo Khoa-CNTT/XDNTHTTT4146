@@ -7,24 +7,28 @@ const VocabularyGardenLogSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    plantId: {
+
+    progressId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "VocabularyPlant", // Mỗi log nên liên kết với cây đang được chăm sóc
+      ref: "VocabularyProgress", // Cập nhật tên mới của cây đã trồng
     },
+
     seedId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "VocabularySeed", // Gợi nhớ user đang dùng seed nào
+      ref: "VocabularySeed",
     },
+
     action: {
       type: String,
       enum: ["seed", "grow", "water", "harvest", "unlockSeed", "useBooster"],
       required: true,
     },
-    word: { type: String }, // Optional: nếu log gắn với từ cụ thể
-    message: { type: String }, // Gợi ý thêm để hiển thị trực tiếp ra UI
+
+    word: { type: String },
+    message: { type: String },
     timestamp: { type: Date, default: Date.now },
   },
-  { timestamps: true }
+  { timestamps: true, collection: "vocabulary_garden_logs" }
 );
 
 module.exports = mongoose.model(

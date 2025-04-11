@@ -14,6 +14,7 @@ const coinTransactionSchema = gql`
     amount: Int!
     description: String
     referenceId: ID
+    metadata: JSON
     createdAt: String
     updatedAt: String
   }
@@ -24,6 +25,7 @@ const coinTransactionSchema = gql`
     amount: Int!
     description: String
     referenceId: ID
+    metadata: JSON
   }
 
   extend type Query {

@@ -1,26 +1,28 @@
 const { gql } = require("apollo-server-express");
 
 const vocabularyGardenSchema = gql`
+  scalar DateTime
+
+  enum VocabularyStatus {
+    SEED # Chưa học
+    GROWING # Đang học
+    BLOOMED # Đã học xong
+    WILTED # Bị quên (suy giảm trí nhớ)
+  }
+
   type VocabularyGarden {
     id: ID!
     userId: ID!
     vocabularyId: ID!
     status: VocabularyStatus!
-    createdAt: String!
-    updatedAt: String!
-  }
-
-  enum VocabularyStatus {
-    seed # Chưa học
-    growing # Đang học
-    bloomed # Đã học xong
-    wilted # Bị quên (suy giảm trí nhớ)
+    createdAt: DateTime!
+    updatedAt: DateTime!
   }
 
   input CreateVocabularyGardenInput {
     userId: ID!
     vocabularyId: ID!
-    status: VocabularyStatus = seed
+    status: VocabularyStatus = SEED
   }
 
   input UpdateVocabularyGardenInput {
@@ -28,19 +30,19 @@ const vocabularyGardenSchema = gql`
     status: VocabularyStatus!
   }
 
-  type Query {
+  extend type Query {
     getVocabularyGardenByUser(userId: ID!): [VocabularyGarden!]!
     getVocabularyGardenEntry(id: ID!): VocabularyGarden
   }
 
-  type Mutation {
+  extend type Mutation {
     createVocabularyGarden(
       input: CreateVocabularyGardenInput!
     ): VocabularyGarden
     updateVocabularyGarden(
       input: UpdateVocabularyGardenInput!
     ): VocabularyGarden
-    deleteVocabularyGarden(id: ID!): Boolean
+    deleteVocabularyGarden(id: ID!): Boolean!
   }
 `;
 
