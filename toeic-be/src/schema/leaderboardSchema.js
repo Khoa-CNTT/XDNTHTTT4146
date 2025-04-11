@@ -1,37 +1,45 @@
 const { gql } = require("apollo-server-express");
 
-const leaderboardTypeDefs = gql`
+const leaderboardSchema = gql`
+  enum LeaderboardType {
+    daily
+    weekly
+    monthly
+    event
+  }
+
+  enum LeaderboardScope {
+    global
+    tower
+    garden
+    event
+  }
+
   type Leaderboard {
     id: ID!
-    user_id: ID!
-    total_exp: Int!
+    userId: ID!
+    totalExp: Int!
     rank: Int!
-    last_updated: String!
-    user: User
+    type: LeaderboardType!
+    scope: LeaderboardScope!
+    scopeId: ID
+    scopeModel: String
+    period: String!
+    createdAt: DateTime!
+    updatedAt: DateTime!
   }
 
-  input CreateLeaderboardInput {
-    user_id: ID!
-    total_exp: Int!
-    rank: Int!
+  input LeaderboardFilterInput {
+    type: LeaderboardType
+    scope: LeaderboardScope
+    scopeId: ID
+    period: String
   }
 
-  input UpdateLeaderboardInput {
-    total_exp: Int
-    rank: Int
-  }
-
-  type Query {
-    getLeaderboard: [Leaderboard]
-    getTopNLeaderboard(limit: Int!): [Leaderboard]
-    getUserRank(userId: ID!): Leaderboard
-  }
-
-  type Mutation {
-    createLeaderboard(input: CreateLeaderboardInput!): Leaderboard
-    updateLeaderboard(id: ID!, input: UpdateLeaderboardInput!): Leaderboard
-    deleteLeaderboard(id: ID!): Boolean
+  extend type Query {
+    getLeaderboard(filter: LeaderboardFilterInput!): [Leaderboard!]!
+    getUserRank(userId: ID!, filter: LeaderboardFilterInput!): Leaderboard
   }
 `;
 
-module.exports = { typeDefs: leaderboardTypeDefs };
+module.exports = leaderboardSchema;

@@ -1,24 +1,24 @@
 module.exports = {
   Query: {
-    // Lấy tất cả badges, có thể bao gồm cả đã xóa nếu có flag
+    // Lấy tất cả badges (có thể kèm đã xoá nếu có flag)
     badges: async (_, { includeDeleted = false }, { models }) => {
       const scope = includeDeleted ? "withDeleted" : undefined;
-      return models.Badge.scope(scope).findAll();
+      return await models.Badge.scope(scope).findAll();
     },
 
-    // Lấy 1 badge cụ thể theo ID
+    // Lấy badge theo ID
     badge: async (_, { id }, { models }) => {
-      return models.Badge.findByPk(id);
+      return await models.Badge.findByPk(id);
     },
 
-    // Lấy danh sách chỉ các badge đã xóa mềm (soft-deleted)
+    // Lấy danh sách badge đã xoá mềm
     deletedBadges: async (_, __, { models }) => {
-      return models.Badge.scope("onlyDeleted").findAll();
+      return await models.Badge.scope("onlyDeleted").findAll();
     },
   },
 
   Mutation: {
-    // Tạo mới một badge
+    // Tạo mới badge
     createBadge: async (_, { input }, { models }) => {
       try {
         const badge = await models.Badge.create(input);
@@ -36,7 +36,7 @@ module.exports = {
       }
     },
 
-    // Cập nhật thông tin badge
+    // Cập nhật badge
     updateBadge: async (_, { id, input }, { models }) => {
       try {
         const badge = await models.Badge.findByPk(id);
@@ -63,7 +63,7 @@ module.exports = {
       }
     },
 
-    // Xóa mềm badge
+    // Xoá mềm badge
     deleteBadge: async (_, { id }, { models }) => {
       try {
         const badge = await models.Badge.findByPk(id);
@@ -75,29 +75,29 @@ module.exports = {
           };
         }
 
-        await badge.destroy();
+        await badge.destroy(); // Soft delete
         return {
           success: true,
-          message: "Đã xóa huy hiệu (soft delete)",
+          message: "Đã xoá huy hiệu (soft delete)",
           badge,
         };
       } catch (error) {
         return {
           success: false,
-          message: `Lỗi xóa huy hiệu: ${error.message}`,
+          message: `Lỗi xoá huy hiệu: ${error.message}`,
           badge: null,
         };
       }
     },
 
-    // Khôi phục badge đã bị soft-delete
+    // Khôi phục badge đã xoá
     restoreBadge: async (_, { id }, { models }) => {
       try {
         const badge = await models.Badge.scope("onlyDeleted").findByPk(id);
         if (!badge) {
           return {
             success: false,
-            message: "Không tìm thấy huy hiệu đã xóa",
+            message: "Không tìm thấy huy hiệu đã xoá",
             badge: null,
           };
         }
@@ -112,6 +112,33 @@ module.exports = {
         return {
           success: false,
           message: `Lỗi khôi phục: ${error.message}`,
+          badge: null,
+        };
+      }
+    },
+
+    // (Tùy chọn) Xoá vĩnh viễn badge khỏi DB
+    forceDeleteBadge: async (_, { id }, { models }) => {
+      try {
+        const badge = await models.Badge.findByPk(id, { paranoid: false });
+        if (!badge) {
+          return {
+            success: false,
+            message: "Không tìm thấy huy hiệu để xoá vĩnh viễn",
+            badge: null,
+          };
+        }
+
+        await badge.destroy({ force: true }); // Hard delete
+        return {
+          success: true,
+          message: "Đã xoá vĩnh viễn huy hiệu khỏi hệ thống",
+          badge: null,
+        };
+      } catch (error) {
+        return {
+          success: false,
+          message: `Lỗi xoá vĩnh viễn: ${error.message}`,
           badge: null,
         };
       }

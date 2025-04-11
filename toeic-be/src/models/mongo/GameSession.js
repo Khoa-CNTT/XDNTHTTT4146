@@ -18,7 +18,7 @@ const GameSessionSchema = new Schema(
       default: 0,
     },
     duration: {
-      type: Number, // thời gian hoàn thành (giây)
+      type: Number,
       default: 0,
     },
     completedAt: {

@@ -46,7 +46,7 @@ const leaderboardSchema = new mongoose.Schema(
       required: function () {
         return this.scope !== "global";
       },
-      enum: ["TowerLevel", "GardenLevel", "Event"],
+      enum: ["TowerLevel", "Event"],
     },
 
     period: {
