@@ -1,10 +1,18 @@
 const { DataTypes, Model } = require("sequelize");
 const sequelize = require("../config/mysql");
 
-class CourseUser extends Model {}
+class MiniGameCourse extends Model {}
 
-CourseUser.init(
+MiniGameCourse.init(
   {
+    miniGameId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: "mini_games",
+        key: "id",
+      },
+    },
     courseId: {
       type: DataTypes.UUID,
       allowNull: false,
@@ -13,21 +21,13 @@ CourseUser.init(
         key: "id",
       },
     },
-    userId: {
-      type: DataTypes.UUID,
-      allowNull: false,
-      references: {
-        model: "users",
-        key: "id",
-      },
-    },
   },
   {
     sequelize,
-    modelName: "CourseUser",
-    tableName: "course_users",
-    timestamps: true,
+    modelName: "MiniGameCourse",
+    tableName: "mini_game_courses",
+    timestamps: false,
   }
 );
 
-module.exports = CourseUser;
+module.exports = MiniGameCourse;

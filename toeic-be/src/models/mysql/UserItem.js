@@ -1,44 +1,38 @@
 const { DataTypes, Model } = require("sequelize");
-const { sequelize } = require("../../config/mysql");
+const sequelize = require("../config/mysql");
 
 class UserItem extends Model {
   static associate(models) {
-    this.belongsTo(models.User, {
+    UserItem.belongsTo(models.User, {
       foreignKey: "userId",
-      as: "user",
-      onDelete: "CASCADE",
+      allowNull: false,
     });
-
-    this.belongsTo(models.Item, {
+    UserItem.belongsTo(models.Item, {
       foreignKey: "itemId",
-      as: "item",
-      onDelete: "CASCADE",
+      allowNull: false,
     });
   }
 }
 
 UserItem.init(
   {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
+      allowNull: false,
+    },
     userId: {
       type: DataTypes.UUID,
       allowNull: false,
-      primaryKey: true,
     },
     itemId: {
       type: DataTypes.UUID,
       allowNull: false,
-      primaryKey: true,
     },
     quantity: {
       type: DataTypes.INTEGER,
-      defaultValue: 1,
-      validate: {
-        min: 1,
-      },
-    },
-    acquiredAt: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
+      allowNull: false,
     },
   },
   {
@@ -46,14 +40,6 @@ UserItem.init(
     modelName: "UserItem",
     tableName: "user_items",
     timestamps: true,
-    paranoid: true,
-    underscored: true,
-    indexes: [
-      { fields: ["userId"] },
-      { fields: ["itemId"] },
-      { unique: true, fields: ["userId", "itemId"] },
-    ],
   }
 );
-
 module.exports = UserItem;

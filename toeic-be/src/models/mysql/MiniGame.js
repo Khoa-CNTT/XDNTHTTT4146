@@ -1,14 +1,16 @@
 const { DataTypes, Model } = require("sequelize");
 const sequelize = require("../config/mysql");
 
-class Lesson extends Model {
+class MiniGame extends Model {
   static associate(models) {
-    Lesson.belongsTo(models.Course, { foreignKey: "courseId" });
-    Lesson.hasMany(models.Question, { foreignKey: "questionId" });
+    MiniGame.belongsToMany(models.Course, {
+      through: "MiniGameCourse",
+      foreignKey: "miniGameId",
+    });
   }
 }
 
-Lesson.init(
+MiniGame.init(
   {
     id: {
       type: DataTypes.UUID,
@@ -24,15 +26,13 @@ Lesson.init(
       type: DataTypes.TEXT,
       allowNull: true,
     },
-    courseId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
   },
   {
     sequelize,
-    modelName: "Lesson",
-    tableName: "lessons",
+    modelName: "MiniGame",
+    tableName: "mini_games",
     timestamps: true,
   }
 );
+
+module.exports = MiniGame;

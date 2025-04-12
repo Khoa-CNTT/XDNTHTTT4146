@@ -1,50 +1,39 @@
 const { DataTypes, Model } = require("sequelize");
-const { sequelize } = require("../../config/mysql");
+const sequelize = require("../config/mysql");
 
 class Reward extends Model {
   static associate(models) {
-    this.hasMany(models.UserReward, {
-      foreignKey: "rewardId",
-      as: "userRewards",
-    });
-    this.belongsToMany(models.Mission, {
-      through: models.MissionReward,
-      foreignKey: "rewardId",
-      otherKey: "missionId",
-      as: "missionsRewarded",
-    });
-    this.belongsToMany(models.User, {
-      through: models.UserReward,
-      foreignKey: "rewardId",
-      otherKey: "userId",
-      as: "users",
-    });
+    Reward.belongsTo(models.Image, { foreignKey: "imageId" });
+    Reward.hasMany(models.UserReward, { foreignKey: "rewardId" });
   }
 }
-
 Reward.init(
   {
     id: {
       type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
+      defaultValue: DataTypes.UUIDV4,
+      allowNull: false,
     },
     name: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    type: {
-      type: DataTypes.ENUM("badge", "coin", "exp", "voucher"),
+    description: {
+      type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: "badge",
     },
-    value: {
-      type: DataTypes.INTEGER,
+    imageId: {
+      type: DataTypes.UUID,
       allowNull: true,
     },
-    is_active: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: true,
+    status: {
+      type: DataTypes.ENUM("ACTIVE", "LOCKED", "DELETED"),
+      defaultValue: "ACTIVE",
+    },
+    points: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
   },
   {
@@ -52,9 +41,6 @@ Reward.init(
     modelName: "Reward",
     tableName: "rewards",
     timestamps: true,
-    paranoid: true,
-    underscored: true,
-    indexes: [{ fields: ["type"] }],
   }
 );
 

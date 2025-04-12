@@ -1,12 +1,30 @@
 const { DataTypes, Model } = require("sequelize");
-const { sequelize } = require("../../config/mysql");
+const sequelize = require("../config/mysql");
 
 class Vocabulary extends Model {
-  static associate(models) {
-    this.hasMany(models.VocabularyGarden, {
-      foreignKey: "vocabularyId",
-      as: "vocabularyGardens",
-    });
+  // Phương thức để lấy ví dụ từ metadata
+  getExamples() {
+    return this.metadata?.examples || [];
+  }
+
+  // Phương thức để lấy từ đồng nghĩa từ metadata
+  getSynonyms() {
+    return this.metadata?.synonyms || [];
+  }
+
+  // Phương thức để lấy từ trái nghĩa từ metadata
+  getAntonyms() {
+    return this.metadata?.antonyms || [];
+  }
+
+  // Phương thức để lấy độ khó từ metadata
+  getDifficultyLevel() {
+    return this.metadata?.difficultyLevel || "basic";
+  }
+
+  // Phương thức để lấy chủ đề từ metadata
+  getTopic() {
+    return this.metadata?.topic || "";
   }
 }
 
@@ -16,130 +34,44 @@ Vocabulary.init(
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
-    },
-
-    word: {
-      type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
     },
-
-    meaning: {
+    name: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-
-    pronunciation: {
+    type: {
+      type: DataTypes.ENUM("noun", "verb", "adjective", "adverb"),
+      allowNull: false,
+    },
+    phonetic: {
       type: DataTypes.STRING,
       allowNull: true,
     },
-
-    ipa: {
+    audio: {
       type: DataTypes.STRING,
       allowNull: true,
     },
-
-    audioUrl: {
-      type: DataTypes.STRING,
-      validate: { isUrl: true },
-      allowNull: true,
-    },
-
-    partOfSpeech: {
-      type: DataTypes.ENUM(
-        "noun",
-        "verb",
-        "adj",
-        "adv",
-        "prep",
-        "conj",
-        "other"
-      ),
-      allowNull: true,
-    },
-
-    difficulty: {
-      type: DataTypes.ENUM("easy", "medium", "hard"),
-      defaultValue: "easy",
-    },
-
-    example: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-
-    synonyms: {
+    metadata: {
       type: DataTypes.JSON,
       allowNull: true,
-    },
-
-    antonyms: {
-      type: DataTypes.JSON,
-      allowNull: true,
-    },
-
-    imageUrl: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      validate: { isUrl: true },
-    },
-
-    category: {
-      type: DataTypes.ENUM(
-        "business",
-        "travel",
-        "technology",
-        "education",
-        "health",
-        "daily",
-        "other"
-      ),
-      defaultValue: "other",
-    },
-
-    source: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-
-    tags: {
-      type: DataTypes.JSON,
-      allowNull: true,
-    },
-
-    level: {
-      type: DataTypes.ENUM("A1", "A2", "B1", "B2", "C1", "C2"),
-      allowNull: true,
-    },
-
-    is_common: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
-    },
-
-    reviewedCount: {
-      type: DataTypes.INTEGER,
-      defaultValue: 0,
-    },
-
-    lastReviewedAt: {
-      type: DataTypes.DATE,
-      allowNull: true,
+      defaultValue: {
+        examples: [],
+        topic: "",
+        synonyms: [],
+        antonyms: [],
+        difficultyLevel: "basic",
+        image: "",
+        relatedContent: [],
+        source: "",
+      },
     },
   },
   {
     sequelize,
     modelName: "Vocabulary",
-    tableName: "vocabulary",
-    timestamps: true,
-    paranoid: true,
-    underscored: true,
-    indexes: [
-      { fields: ["word"], unique: true },
-      { fields: ["category"] },
-      { fields: ["difficulty"] },
-      { fields: ["partOfSpeech"] },
-    ],
+    tableName: "vocabularies",
+    timestamps: false,
   }
 );
 

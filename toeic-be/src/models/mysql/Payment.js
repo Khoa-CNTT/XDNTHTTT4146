@@ -1,25 +1,9 @@
 const { DataTypes, Model } = require("sequelize");
-const { sequelize } = require("../../config/mysql");
+const sequelize = require("../config/mysql");
 
 class Payment extends Model {
   static associate(models) {
-    this.belongsTo(models.User, {
-      foreignKey: "userId",
-      as: "user",
-      onDelete: "CASCADE",
-    });
-
-    this.belongsTo(models.Course, {
-      foreignKey: "courseId",
-      as: "course",
-      onDelete: "SET NULL",
-    });
-
-    this.belongsTo(models.Coupon, {
-      foreignKey: "couponId",
-      as: "coupon",
-      onDelete: "SET NULL",
-    });
+    Payment.belongsTo(models.User, { foreignKey: "userId", as: "user" });
   }
 }
 
@@ -30,86 +14,37 @@ Payment.init(
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
-
     userId: {
       type: DataTypes.UUID,
       allowNull: false,
-      references: {
-        model: "users",
-        key: "id",
-      },
     },
-
-    courseId: {
-      type: DataTypes.UUID,
-      allowNull: true,
-      references: {
-        model: "courses",
-        key: "id",
-      },
-    },
-
-    couponId: {
-      type: DataTypes.UUID,
-      allowNull: true,
-      references: {
-        model: "coupons",
-        key: "id",
-      },
-    },
-
     amount: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
-      validate: { min: 0.01 },
     },
-
-    finalAmount: {
-      type: DataTypes.DECIMAL(10, 2),
-      allowNull: false,
-      validate: {
-        min: 0.0,
-        max(value) {
-          if (this.amount < value) {
-            throw new Error(
-              "Final amount cannot be greater than the original amount"
-            );
-          }
-        },
-      },
+    // Nếu là nạp coin thì số lượng coin nhận được
+    coin: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
     },
-
-    method: {
-      type: DataTypes.ENUM("VNPAY", "MOMO", "PAYPAL", "BANK", "CASH"),
+    // Loại giao dịch: Nạp tiền hay mua khóa học
+    type: {
+      type: DataTypes.ENUM("TOP_UP", "BUY_COURSE"),
       allowNull: false,
     },
-
+    // Tham chiếu đến khóa học nếu là BUY_COURSE
+    refId: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      comment: "Tham chiếu đến khóa học nếu type = BUY_COURSE",
+    },
     status: {
-      type: DataTypes.ENUM("pending", "completed", "failed", "refunded"),
-      defaultValue: "pending",
-      allowNull: false,
+      type: DataTypes.ENUM("PENDING", "SUCCESS", "FAILED"),
+      defaultValue: "PENDING",
     },
-
-    transactionId: {
-      type: DataTypes.STRING,
+    method: {
+      type: DataTypes.STRING, // Phương thức thanh toán: MOMO, ZALOPAY, VN_PAY, BANK_TRANSFER, ...
       allowNull: true,
-    },
-
-    invoiceCode: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      unique: true,
-    },
-
-    metadata: {
-      type: DataTypes.JSON,
-      allowNull: true,
-    },
-
-    paymentDate: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
     },
   },
   {
@@ -117,22 +52,6 @@ Payment.init(
     modelName: "Payment",
     tableName: "payments",
     timestamps: true,
-    paranoid: true,
-    underscored: true,
-    hooks: {
-      beforeUpdate: (payment, options) => {
-        if (payment.status === "failed") {
-          // Thêm logic xử lý nếu cần khi trạng thái thanh toán là "failed"
-        }
-      },
-    },
-    indexes: [
-      { fields: ["userId"] },
-      { fields: ["courseId"] },
-      { fields: ["couponId"] },
-      { fields: ["transactionId"] },
-      { fields: ["status"] },
-    ],
   }
 );
 

@@ -1,17 +1,15 @@
-const { DataTypes, Model, Op } = require("sequelize");
-const { sequelize } = require("../../config/mysql");
+const { DataTypes, Model } = require("sequelize");
+const sequelize = require("../config/mysql");
 
 class Badge extends Model {
   static associate(models) {
-    this.belongsToMany(models.User, {
-      through: models.UserBadge,
+    Badge.belongsToMany(models.User, {
+      through: "UserBadges",
       foreignKey: "badgeId",
       otherKey: "userId",
-      as: "usersWithBadge",
     });
   }
 }
-
 Badge.init(
   {
     id: {
@@ -22,23 +20,17 @@ Badge.init(
     name: {
       type: DataTypes.STRING(100),
       allowNull: false,
-      unique: true,
     },
     description: {
+      type: DataTypes.TEXT,
+    },
+    imageUrl: {
       type: DataTypes.STRING(255),
-      allowNull: true,
     },
-    image: {
-      type: DataTypes.STRING(2048),
-      allowNull: true,
-      validate: {
-        isUrl: true,
-      },
-    },
-    category: {
-      type: DataTypes.STRING(50),
-      allowNull: true,
-      defaultValue: "general",
+    points: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
     },
   },
   {
@@ -46,22 +38,6 @@ Badge.init(
     modelName: "Badge",
     tableName: "badges",
     timestamps: true,
-    paranoid: true,
-    defaultScope: {
-      where: {
-        deletedAt: null,
-      },
-    },
-    scopes: {
-      withDeleted: {},
-      onlyDeleted: {
-        where: {
-          deletedAt: {
-            [Op.ne]: null,
-          },
-        },
-      },
-    },
   }
 );
 

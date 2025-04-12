@@ -1,85 +1,21 @@
 const { gql } = require("apollo-server-express");
 
-const paymentSchema = gql`
-  scalar JSON
-
-  enum PaymentMethod {
-    VNPAY
-    MOMO
-    PAYPAL
-    BANK
-  }
-
-  enum PaymentStatus {
-    pending
-    completed
-    failed
-    refunded
-  }
-
+module.exports = gql`
   type Payment {
     id: ID!
     userId: ID!
-    courseId: ID
-    couponId: ID
     amount: Float!
-    finalAmount: Float!
-    method: PaymentMethod!
-    status: PaymentStatus!
-    transactionId: String
-    invoiceCode: String
-    metadata: JSON
-    paymentDate: String!
+    coin: Int
+    type: String!
+    refId: ID
+    refModel: String
+    status: String!
+    method: String
     createdAt: String!
-    updatedAt: String!
-
-    user: User
-    course: Course
-    coupon: Coupon
   }
 
-  input CreatePaymentInput {
-    userId: ID!
-    courseId: ID
-    couponId: ID
-    amount: Float!
-    finalAmount: Float!
-    method: PaymentMethod!
-    transactionId: String
-    invoiceCode: String
-    metadata: JSON
-    paymentDate: String
-  }
-
-  input UpdatePaymentInput {
-    status: PaymentStatus
-    transactionId: String
-    invoiceCode: String
-    metadata: JSON
-    finalAmount: Float
-  }
-
-  type PaymentResponse {
-    success: Boolean!
-    message: String!
-    payment: Payment
-  }
-
-  extend type Query {
-    getPaymentById(id: ID!): Payment
-    getPaymentsByUser(
-      userId: ID!
-      startDate: String
-      endDate: String
-    ): [Payment!]!
-    getAllPayments(startDate: String, endDate: String): [Payment!]!
-  }
-
-  extend type Mutation {
-    createPayment(input: CreatePaymentInput!): PaymentResponse!
-    updatePayment(id: ID!, input: UpdatePaymentInput!): PaymentResponse!
-    deletePayment(id: ID!): Boolean!
+  type Mutation {
+    topUp(amount: Float!, method: String!): Payment!
+    buyCourse(courseId: ID!, method: String = "COIN"): Payment!
   }
 `;
-
-module.exports = paymentSchema;

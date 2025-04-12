@@ -1,69 +1,34 @@
 const { DataTypes, Model } = require("sequelize");
-const { sequelize } = require("../../config/mysql");
+const sequelize = require("../config/mysql");
 
-class UserBadge extends Model {
-  static associate(models) {
-    this.belongsTo(models.User, {
-      foreignKey: "userId",
-      as: "user",
-      onDelete: "CASCADE",
-    });
-
-    this.belongsTo(models.Reward, {
-      foreignKey: "rewardId",
-      as: "reward",
-      onDelete: "SET NULL",
-    });
-  }
-}
+class UserBadge extends Model {}
 
 UserBadge.init(
   {
-    id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
-      primaryKey: true,
-    },
-
     userId: {
       type: DataTypes.UUID,
       allowNull: false,
-      references: {
-        model: "users",
-        key: "id",
-      },
-      onDelete: "CASCADE",
+      primaryKey: true,
     },
-
-    rewardId: {
+    badgeId: {
       type: DataTypes.UUID,
       allowNull: false,
-      references: {
-        model: "rewards",
-        key: "id",
-      },
-      onDelete: "SET NULL",
+      primaryKey: true,
     },
-
-    grantedAt: {
+    awardedAt: {
       type: DataTypes.DATE,
-      allowNull: false,
       defaultValue: DataTypes.NOW,
     },
-
-    isActive: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: true,
+    note: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
     },
   },
   {
     sequelize,
     modelName: "UserBadge",
     tableName: "user_badges",
-    timestamps: true,
-    paranoid: true,
-    underscored: true,
-    indexes: [{ fields: ["userId"] }, { fields: ["rewardId"] }],
+    timestamps: false,
   }
 );
 

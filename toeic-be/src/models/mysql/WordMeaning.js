@@ -1,15 +1,8 @@
 const { DataTypes, Model } = require("sequelize");
-const { sequelize } = require("../../config/mysql");
+const sequelize = require("../config/mysql");
+const Vocabulary = require("./Vocabulary");
 
-class WordMeaning extends Model {
-  static associate(models) {
-    this.belongsTo(models.Vocabulary, {
-      foreignKey: "vocabularyId",
-      as: "vocabulary",
-      onDelete: "CASCADE",
-    });
-  }
-}
+class WordMeaning extends Model {}
 
 WordMeaning.init(
   {
@@ -17,44 +10,34 @@ WordMeaning.init(
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
+      allowNull: false,
     },
     meaning: {
       type: DataTypes.STRING,
       allowNull: false,
-      validate: {
-        notEmpty: true,
-      },
     },
     vocabularyId: {
       type: DataTypes.UUID,
       allowNull: false,
-    },
-    partOfSpeech: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    language: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    synonyms: {
-      type: DataTypes.JSON,
-      allowNull: true,
-      comment: "List of synonyms for the meaning",
-    },
-    antonyms: {
-      type: DataTypes.JSON,
-      allowNull: true,
-      comment: "List of antonyms for the meaning",
+      references: {
+        model: Vocabulary,
+        key: "id",
+      },
     },
   },
   {
     sequelize,
     modelName: "WordMeaning",
-    tableName: "word_meaning",
-    timestamps: true,
-    underscored: true,
+    tableName: "word_meanings",
+    timestamps: false,
   }
 );
+
+// Định nghĩa mối quan hệ giữa Vocabulary và WordMeaning
+WordMeaning.associate = (models) => {
+  WordMeaning.belongsTo(models.Vocabulary, {
+    foreignKey: "vocabularyId",
+  });
+};
 
 module.exports = WordMeaning;

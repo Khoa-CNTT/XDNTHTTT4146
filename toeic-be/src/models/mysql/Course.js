@@ -1,7 +1,20 @@
-const { DataTypes, Model, Op } = require("sequelize");
-const { sequelize } = require("../../config/mysql");
+const { DataTypes, Model } = require("sequelize");
+const sequelize = require("../config/mysql");
+const Lesson = require("./Lesson");
+const User = require("./User");
+const CourseUser = require("./CourseUser");
 
-class Course extends Model {}
+class Course extends Model {
+  static associate(models) {
+    Course.hasMany(models.Lesson, { foreignKey: "courseId" });
+
+    Course.belongsToMany(models.User, {
+      through: models.CourseUser,
+      foreignKey: "courseId",
+      otherKey: "userId",
+    });
+  }
+}
 
 Course.init(
   {
@@ -9,49 +22,29 @@ Course.init(
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
+      allowNull: false,
     },
     name: {
-      type: DataTypes.STRING(150),
+      type: DataTypes.STRING(255),
       allowNull: false,
-      unique: true,
     },
     description: {
       type: DataTypes.TEXT,
       allowNull: true,
     },
-    price: {
-      type: DataTypes.FLOAT,
-      allowNull: false,
-      validate: {
-        min: 0,
-      },
-    },
     image: {
-      type: DataTypes.STRING(2048),
+      type: DataTypes.STRING(255),
       allowNull: true,
-      validate: {
-        isUrl: true,
-      },
+    },
+    price: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false,
+      defaultValue: 0.0,
     },
     status: {
-      type: DataTypes.ENUM("active", "inactive", "archived"),
+      type: DataTypes.ENUM("active", "inactive"),
+      allowNull: false,
       defaultValue: "active",
-    },
-    category: {
-      type: DataTypes.STRING(50),
-      allowNull: true,
-    },
-    level: {
-      type: DataTypes.ENUM("beginner", "intermediate", "advanced"),
-      allowNull: true,
-    },
-    creatorId: {
-      type: DataTypes.UUID,
-      allowNull: true,
-      references: {
-        model: "Users",
-        key: "id",
-      },
     },
   },
   {
@@ -59,16 +52,6 @@ Course.init(
     modelName: "Course",
     tableName: "courses",
     timestamps: true,
-    paranoid: true,
-    defaultScope: {
-      where: { deletedAt: null },
-    },
-    scopes: {
-      withDeleted: {},
-      onlyDeleted: {
-        where: { deletedAt: { [Op.ne]: null } },
-      },
-    },
   }
 );
 

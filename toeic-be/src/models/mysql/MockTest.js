@@ -1,23 +1,11 @@
 const { DataTypes, Model } = require("sequelize");
-const { sequelize } = require("../../config/mysql");
+const sequelize = require("../config/mysql");
 
 class MockTest extends Model {
   static associate(models) {
-    this.hasMany(models.Question, {
-      foreignKey: "mock_test_id",
-      as: "questions",
-      onDelete: "CASCADE",
-    });
-
-    this.hasMany(models.MockResult, {
-      foreignKey: "mock_test_id",
-      as: "results",
-      onDelete: "CASCADE",
-    });
-
-    this.belongsTo(models.User, {
-      foreignKey: "created_by",
-      as: "creator",
+    MockTest.belongsTo(models.Course, {
+      foreignKey: "courseId",
+      allowNull: true,
     });
   }
 }
@@ -28,70 +16,26 @@ MockTest.init(
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
-    },
-
-    title: {
-      type: DataTypes.STRING,
       allowNull: false,
     },
-
+    name: {
+      type: DataTypes.STRING(100),
+      allowNull: false,
+    },
     description: {
       type: DataTypes.TEXT,
       allowNull: true,
     },
-
-    total_questions: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      validate: {
-        min: 1,
-      },
-    },
-
-    duration: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-
-    difficulty: {
-      type: DataTypes.ENUM("easy", "medium", "hard"),
-      allowNull: false,
-      defaultValue: "medium",
-    },
-
-    tags: {
-      type: DataTypes.ARRAY(DataTypes.STRING),
-      allowNull: true,
-    },
-
-    is_active: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: true,
-    },
-
-    is_public: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: true,
-    },
-
-    created_by: {
+    courseId: {
       type: DataTypes.UUID,
       allowNull: true,
-      references: {
-        model: "users",
-        key: "id",
-      },
     },
   },
   {
     sequelize,
     modelName: "MockTest",
     tableName: "mock_tests",
-    timestamps: true,
-    paranoid: true,
-    indexes: [{ fields: ["created_by"] }, { fields: ["difficulty"] }],
+    timestamps: false,
   }
 );
-
 module.exports = MockTest;

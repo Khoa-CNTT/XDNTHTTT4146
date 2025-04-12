@@ -1,12 +1,13 @@
 const { DataTypes, Model } = require("sequelize");
-const { sequelize } = require("../../config/mysql");
+const sequelize = require("../config/mysql");
 
 class Invoice extends Model {
   static associate(models) {
-    this.belongsTo(models.Payment, {
+    Invoice.belongsTo(models.User, { foreignKey: "userId", as: "user" });
+    Invoice.belongsTo(models.Course, { foreignKey: "courseId", as: "course" });
+    Invoice.belongsTo(models.Payment, {
       foreignKey: "paymentId",
       as: "payment",
-      onDelete: "CASCADE",
     });
   }
 }
@@ -18,39 +19,31 @@ Invoice.init(
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
-    paymentId: {
+    invoiceCode: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+    userId: {
       type: DataTypes.UUID,
       allowNull: false,
-      references: {
-        model: "payments",
-        key: "id",
-      },
     },
-    items: {
-      type: DataTypes.JSON,
+    courseId: {
+      type: DataTypes.UUID,
       allowNull: false,
     },
-    totalAmount: {
-      type: DataTypes.DECIMAL(10, 2),
-      allowNull: false,
+    paymentId: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      comment: "Tham chiếu đến giao dịch thanh toán nếu có",
     },
-    taxAmount: {
-      type: DataTypes.DECIMAL(10, 2),
-      allowNull: false,
-    },
-    shippingFee: {
+    price: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
     },
     status: {
-      type: DataTypes.ENUM("paid", "unpaid", "refunded"),
-      defaultValue: "unpaid",
-      allowNull: false,
-    },
-    invoiceDate: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
+      type: DataTypes.ENUM("PENDING", "PAID", "CANCELLED"),
+      defaultValue: "PENDING",
     },
   },
   {
@@ -58,8 +51,6 @@ Invoice.init(
     modelName: "Invoice",
     tableName: "invoices",
     timestamps: true,
-    paranoid: true,
-    underscored: true,
   }
 );
 
