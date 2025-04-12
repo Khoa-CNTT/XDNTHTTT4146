@@ -6,8 +6,7 @@ class Item extends Model {
     this.belongsToMany(models.User, {
       through: models.UserItem,
       foreignKey: "itemId",
-      otherKey: "userId",
-      as: "owners",
+      as: "users",
     });
 
     this.hasMany(models.Image, {
@@ -16,6 +15,11 @@ class Item extends Model {
         type: "item",
       },
       as: "images",
+    });
+
+    this.belongsTo(models.Reward, {
+      foreignKey: "rewardId",
+      as: "reward",
     });
   }
 }
@@ -70,9 +74,22 @@ Item.init(
       type: DataTypes.JSON,
       allowNull: true,
     },
-    isActive: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: true,
+    status: {
+      type: DataTypes.ENUM("private", "public"),
+      defaultValue: "public",
+      allowNull: false,
+    },
+    availableFrom: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    availableTo: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    eventTag: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
   },
   {
@@ -81,6 +98,11 @@ Item.init(
     tableName: "items",
     timestamps: true,
     paranoid: true,
+    indexes: [
+      { fields: ["category"] },
+      { fields: ["status"] },
+      { fields: ["rewardId"] },
+    ],
   }
 );
 

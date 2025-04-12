@@ -1,37 +1,23 @@
 const { gql } = require("apollo-server-express");
 
-const expLevelSchema = gql`
+const expLevelTypeDefs = gql`
   type ExpLevel {
     level: Int!
     requiredExp: Int!
   }
 
-  input CreateExpLevelInput {
-    level: Int!
-    requiredExp: Int!
-  }
-
-  input UpdateExpLevelInput {
-    requiredExp: Int!
-  }
-
-  type ExpLevelResponse {
-    success: Boolean!
-    message: String!
-    expLevel: ExpLevel
+  type LevelProgress {
+    currentLevel: ExpLevel!
+    nextLevel: ExpLevel
+    currentExp: Int!
+    expToNextLevel: Int
+    progressRatio: Float!
   }
 
   extend type Query {
     getAllExpLevels: [ExpLevel!]!
-    getExpLevel(level: Int!): ExpLevel
-    getNextExpLevel(currentLevel: Int!): ExpLevel
-  }
-
-  extend type Mutation {
-    createExpLevel(input: CreateExpLevelInput!): ExpLevelResponse!
-    updateExpLevel(level: Int!, input: UpdateExpLevelInput!): ExpLevelResponse!
-    deleteExpLevel(level: Int!): ExpLevelResponse!
+    getUserLevel(userId: ID!): LevelProgress!
   }
 `;
 
-module.exports = { expLevelSchema };
+module.exports = { typeDefs: expLevelTypeDefs };

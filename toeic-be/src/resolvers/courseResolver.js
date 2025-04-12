@@ -1,136 +1,89 @@
-const { Course, Lesson } = require("../../models");
-const {
-  AuthenticationError,
-  UserInputError,
-} = require("apollo-server-express");
+const CourseService = require("../services/courseService");
 
-const courseResolver = {
+const CourseResolver = {
   Query: {
-    getAllCourses: async (_, { level, isActive, limit = 20, offset = 0 }) => {
+    getAllCourses: async () => {
       try {
-        const where = {};
-        if (level) where.level = level;
-        if (typeof isActive === "boolean") where.isActive = isActive;
-
-        return await Course.findAll({
-          where,
-          include: [{ model: Lesson, as: "lessons" }],
-          order: [["createdAt", "DESC"]],
-          limit,
-          offset,
-        });
-      } catch (error) {
-        throw new Error("Lỗi khi lấy danh sách khoá học: " + error.message);
+        const courses = await CourseService.getAll({});
+        return courses;
+      } catch (err) {
+        console.error(err);
+        throw new Error("Không thể lấy danh sách khóa học.");
       }
     },
-
     getCourseById: async (_, { id }) => {
       try {
-        const course = await Course.findByPk(id, {
-          include: [{ model: Lesson, as: "lessons" }],
-        });
-        if (!course) throw new UserInputError("Không tìm thấy khoá học.");
+        const course = await CourseService.getById(id);
+        if (!course) throw new Error("Không tìm thấy khóa học.");
         return course;
-      } catch (error) {
-        throw new Error("Lỗi khi lấy khoá học: " + error.message);
+      } catch (err) {
+        console.error(err);
+        throw new Error("Lỗi khi lấy khóa học.");
       }
     },
   },
-
   Mutation: {
-    createCourse: async (_, { input }, { user }) => {
-      if (!user || user.role !== "admin") {
-        throw new AuthenticationError("Bạn không có quyền.");
-      }
-
+    createCourse: async (_, { input }) => {
       try {
-        const existed = await Course.findOne({ where: { name: input.name } });
-        if (existed) {
-          throw new UserInputError("Tên khoá học đã tồn tại.");
-        }
-
-        const course = await Course.create(input);
+        const course = await CourseService.create(input);
         return {
           success: true,
-          message: "Tạo khoá học thành công.",
+          message: "Tạo khóa học thành công.",
           course,
         };
-      } catch (error) {
+      } catch (err) {
         return {
           success: false,
-          message: error.message,
+          message: err.message,
           course: null,
         };
       }
     },
-
-    updateCourse: async (_, { id, input }, { user }) => {
-      if (!user || user.role !== "admin") {
-        throw new AuthenticationError("Bạn không có quyền.");
-      }
-
+    updateCourse: async (_, { id, input }) => {
       try {
-        const course = await Course.findByPk(id);
-        if (!course) {
+        const course = await CourseService.update(id, input);
+        if (!course)
           return {
             success: false,
-            message: "Khoá học không tồn tại.",
+            message: "Không tìm thấy khóa học để cập nhật.",
             course: null,
           };
-        }
-
-        await course.update(input);
-
         return {
           success: true,
-          message: "Cập nhật khoá học thành công.",
+          message: "Cập nhật khóa học thành công.",
           course,
         };
-      } catch (error) {
+      } catch (err) {
         return {
           success: false,
-          message: error.message,
+          message: err.message,
           course: null,
         };
       }
     },
-
-    deleteCourse: async (_, { id }, { user }) => {
-      if (!user || user.role !== "admin") {
-        throw new AuthenticationError("Bạn không có quyền.");
-      }
-
+    deleteCourse: async (_, { id }) => {
       try {
-        const course = await Course.findByPk(id);
-        if (!course) {
+        const course = await CourseService.delete(id);
+        if (!course)
           return {
             success: false,
-            message: "Khoá học không tồn tại.",
+            message: "Không tìm thấy khóa học để xoá.",
             course: null,
           };
-        }
-
-        await course.destroy();
         return {
           success: true,
-          message: "Xoá khoá học thành công.",
+          message: "Xoá khóa học thành công.",
           course,
         };
-      } catch (error) {
+      } catch (err) {
         return {
           success: false,
-          message: error.message,
+          message: err.message,
           course: null,
         };
       }
-    },
-  },
-
-  Course: {
-    lessons: async (course) => {
-      return await Lesson.findAll({ where: { courseId: course.id } });
     },
   },
 };
 
-module.exports = courseResolver;
+module.exports = CourseResolver;

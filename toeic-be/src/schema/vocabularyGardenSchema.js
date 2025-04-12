@@ -7,7 +7,7 @@ const vocabularyGardenSchema = gql`
     SEED # Chưa học
     GROWING # Đang học
     BLOOMED # Đã học xong
-    WILTED # Bị quên (suy giảm trí nhớ)
+    WILTED # Bị quên
   }
 
   type VocabularyGarden {

@@ -1,6 +1,6 @@
 import React from "react";
 
-const StudentPage = () => {
+const TeacherPage = () => {
   return (
     <div>
       <h1>Welcome to Teacher Page</h1>
@@ -8,4 +8,4 @@ const StudentPage = () => {
   );
 };
 
-export default StudentPage;
+export default TeacherPage;

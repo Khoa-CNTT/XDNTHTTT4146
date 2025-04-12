@@ -1,6 +1,14 @@
 const { gql } = require("apollo-server-express");
 
-module.exports = gql`
+const typeDefs = gql`
+  scalar DateTime
+
+  enum Difficulty {
+    easy
+    medium
+    hard
+  }
+
   enum PartOfSpeech {
     noun
     verb
@@ -11,13 +19,7 @@ module.exports = gql`
     other
   }
 
-  enum VocabularyDifficulty {
-    easy
-    medium
-    hard
-  }
-
-  enum VocabularyLevel {
+  enum Level {
     A1
     A2
     B1
@@ -34,62 +36,49 @@ module.exports = gql`
     ipa: String
     audioUrl: String
     partOfSpeech: PartOfSpeech
-    difficulty: VocabularyDifficulty
-    level: VocabularyLevel
+    difficulty: Difficulty
+    example: String
     synonyms: [String]
     antonyms: [String]
-    example: String
-    createdAt: String
-    updatedAt: String
+    imageUrl: String
+    category: String
+    source: String
+    tags: [String]
+    level: Level
+    isCommon: Boolean
+    reviewedCount: Int
+    lastReviewedAt: DateTime
   }
 
-  input CreateVocabularyInput {
+  input VocabularyInput {
     word: String!
     meaning: String!
     pronunciation: String
     ipa: String
     audioUrl: String
     partOfSpeech: PartOfSpeech
-    difficulty: VocabularyDifficulty
-    level: VocabularyLevel
+    difficulty: Difficulty
+    example: String
     synonyms: [String]
     antonyms: [String]
-    example: String
-  }
-
-  input UpdateVocabularyInput {
-    word: String
-    meaning: String
-    pronunciation: String
-    ipa: String
-    audioUrl: String
-    partOfSpeech: PartOfSpeech
-    difficulty: VocabularyDifficulty
-    level: VocabularyLevel
-    synonyms: [String]
-    antonyms: [String]
-    example: String
-  }
-
-  type VocabularyMutationResponse {
-    success: Boolean!
-    message: String!
-    vocabulary: Vocabulary
+    imageUrl: String
+    category: String
+    source: String
+    tags: [String]
+    level: Level
+    isCommon: Boolean
   }
 
   type Query {
-    getAllVocabulary(limit: Int, offset: Int): [Vocabulary]
-    getVocabularyById(id: ID!): Vocabulary
-    searchVocabulary(keyword: String!): [Vocabulary]
-    getVocabularyByLevel(level: VocabularyLevel!): [Vocabulary]
+    getVocabulary(id: ID!): Vocabulary
+    getAllVocabularies: [Vocabulary]
   }
 
   type Mutation {
-    createVocabulary(input: CreateVocabularyInput!): VocabularyMutationResponse
-    updateVocabulary(
-      id: ID!
-      input: UpdateVocabularyInput!
-    ): VocabularyMutationResponse
-    deleteVocabulary(id: ID!): VocabularyMutationResponse
+    createVocabulary(input: VocabularyInput): Vocabulary
+    updateVocabulary(id: ID!, input: VocabularyInput): Vocabulary
+    deleteVocabulary(id: ID!): Boolean
   }
 `;
+
+module.exports = { typeDefs };

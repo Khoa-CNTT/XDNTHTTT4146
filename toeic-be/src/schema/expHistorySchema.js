@@ -1,8 +1,7 @@
 const { gql } = require("apollo-server-express");
 
-const expHistorySchema = gql`
+const expHistoryTypeDefs = gql`
   scalar DateTime
-  scalar JSON
 
   enum ExpSourceType {
     lesson
@@ -28,6 +27,13 @@ const expHistorySchema = gql`
     createdAt: DateTime!
   }
 
+  input ExpHistoryFilterInput {
+    userId: ID!
+    source: ExpSourceType
+    fromDate: DateTime
+    toDate: DateTime
+  }
+
   input CreateExpHistoryInput {
     userId: ID!
     source: ExpSourceType!
@@ -41,12 +47,11 @@ const expHistorySchema = gql`
   type ExpHistoryResponse {
     success: Boolean!
     message: String!
-    expHistory: ExpHistory
+    history: ExpHistory
   }
 
   extend type Query {
-    getExpHistoriesByUser(userId: ID!): [ExpHistory!]!
-    getExpHistoryById(id: ID!): ExpHistory
+    getUserExpHistory(filter: ExpHistoryFilterInput!): [ExpHistory!]!
   }
 
   extend type Mutation {
@@ -54,4 +59,4 @@ const expHistorySchema = gql`
   }
 `;
 
-module.exports = { expHistorySchema };
+module.exports = { typeDefs: expHistoryTypeDefs };

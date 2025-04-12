@@ -11,7 +11,7 @@ const storage = multer.diskStorage({
     cb(null, "uploads/"); // Thư mục lưu trữ tạm thời trên server
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname)); // Tạo tên tệp duy nhất
+    cb(null, Date.now() + path.extname(file.originalname));
   },
 });
 

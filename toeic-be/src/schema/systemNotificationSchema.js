@@ -1,59 +1,68 @@
 const { gql } = require("apollo-server-express");
 
-const systemNotificationSchema = gql`
-  enum UserRole {
-    STUDENT
-    TEACHER
-    ADMIN
-    ALL
+const typeDefs = gql`
+  enum NotificationType {
+    info
+    warning
+    achievement
+    event
+    system
+  }
+
+  enum TargetRole {
+    student
+    teacher
+    admin
+    all
+  }
+
+  enum NotificationStatus {
+    active
+    inactive
   }
 
   type SystemNotification {
     id: ID!
     title: String!
     description: String!
-    targetRole: UserRole!
+    type: NotificationType!
+    targetRole: TargetRole!
+    targetUserId: ID
+    senderId: ID!
     isActive: Boolean!
-    sender: User
-    createdAt: String
-    updatedAt: String
+    startAt: DateTime
+    endAt: DateTime
+    priority: Int!
+    createdAt: DateTime!
+    updatedAt: DateTime!
   }
 
-  input CreateSystemNotificationInput {
+  input SystemNotificationInput {
     title: String!
     description: String!
-    targetRole: UserRole! # Enum để tránh nhập sai chuỗi
-  }
-
-  input UpdateSystemNotificationInput {
-    id: ID!
-    title: String
-    description: String
-    targetRole: UserRole
+    type: NotificationType!
+    targetRole: TargetRole!
+    targetUserId: ID
+    senderId: ID!
     isActive: Boolean
+    startAt: DateTime
+    endAt: DateTime
+    priority: Int
   }
 
-  type NotificationPayload {
-    message: String!
-    notification: SystemNotification
+  type Query {
+    getSystemNotifications(filter: String): [SystemNotification]
+    getActiveSystemNotifications: [SystemNotification]
   }
 
-  extend type Query {
-    getSystemNotifications(role: UserRole!): [SystemNotification!]!
-    getSystemNotificationById(id: ID!): SystemNotification
-  }
-
-  extend type Mutation {
-    createSystemNotification(
-      input: CreateSystemNotificationInput!
-    ): NotificationPayload!
-
-    updateSystemNotification(
-      input: UpdateSystemNotificationInput!
-    ): NotificationPayload!
-
-    deleteSystemNotification(id: ID!): NotificationPayload!
+  type Mutation {
+    createSystemNotification(input: SystemNotificationInput): SystemNotification
+    updateSystemNotificationStatus(
+      notificationId: ID!
+      status: Boolean
+    ): SystemNotification
+    deleteSystemNotification(notificationId: ID!): Boolean
   }
 `;
 
-module.exports = systemNotificationSchema;
+module.exports = { typeDefs };

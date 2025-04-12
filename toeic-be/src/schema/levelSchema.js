@@ -1,14 +1,19 @@
 const { gql } = require("apollo-server-express");
 
-const levelTypeDefs = gql`
+const levelSchema = gql`
+  scalar DateTime
+
   type Level {
     id: ID!
     levelName: String!
     targetScore: Int!
     description: String!
     studyGoal: String!
-    createdAt: String
-    updatedAt: String
+    expRequired: Int!
+    badgeId: ID
+    order: Int!
+    createdAt: DateTime!
+    updatedAt: DateTime
   }
 
   input CreateLevelInput {
@@ -16,6 +21,9 @@ const levelTypeDefs = gql`
     targetScore: Int!
     description: String!
     studyGoal: String!
+    expRequired: Int!
+    badgeId: ID
+    order: Int
   }
 
   input UpdateLevelInput {
@@ -23,18 +31,27 @@ const levelTypeDefs = gql`
     targetScore: Int
     description: String
     studyGoal: String
+    expRequired: Int
+    badgeId: ID
+    order: Int
   }
 
-  type Query {
-    getAllLevels: [Level]
+  type LevelResponse {
+    success: Boolean!
+    message: String!
+    level: Level
+  }
+
+  extend type Query {
     getLevelById(id: ID!): Level
+    getAllLevels: [Level!]!
   }
 
-  type Mutation {
-    createLevel(input: CreateLevelInput!): Level
-    updateLevel(id: ID!, input: UpdateLevelInput!): Level
-    deleteLevel(id: ID!): Boolean
+  extend type Mutation {
+    createLevel(input: CreateLevelInput!): LevelResponse!
+    updateLevel(id: ID!, input: UpdateLevelInput!): LevelResponse!
+    deleteLevel(id: ID!): LevelResponse!
   }
 `;
 
-module.exports = { typeDefs: levelTypeDefs };
+module.exports = { levelSchema };

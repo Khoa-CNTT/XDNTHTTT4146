@@ -3,6 +3,7 @@ const { gql } = require("apollo-server-express");
 const imageSchema = gql`
   scalar DateTime
   scalar JSON
+  scalar Upload
 
   type Image {
     id: ID!
@@ -51,6 +52,13 @@ const imageSchema = gql`
     createImage(input: CreateImageInput!): ImageResponse!
     updateImage(id: ID!, input: UpdateImageInput!): ImageResponse!
     deleteImage(id: ID!): ImageResponse!
+
+    uploadImageToCloudinary(
+      file: Upload!
+      type: String!
+      refId: ID!
+    ): ImageResponse!
+    deleteImageFromCloudinary(publicId: String!): ImageResponse!
   }
 `;
 

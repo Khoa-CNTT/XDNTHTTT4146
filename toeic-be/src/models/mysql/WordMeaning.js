@@ -3,7 +3,6 @@ const { sequelize } = require("../../config/mysql");
 
 class WordMeaning extends Model {
   static associate(models) {
-    // Mỗi nghĩa thuộc về một từ vựng
     this.belongsTo(models.Vocabulary, {
       foreignKey: "vocabularyId",
       as: "vocabulary",
@@ -37,6 +36,16 @@ WordMeaning.init(
     language: {
       type: DataTypes.STRING,
       allowNull: true,
+    },
+    synonyms: {
+      type: DataTypes.JSON,
+      allowNull: true,
+      comment: "List of synonyms for the meaning",
+    },
+    antonyms: {
+      type: DataTypes.JSON,
+      allowNull: true,
+      comment: "List of antonyms for the meaning",
     },
   },
   {

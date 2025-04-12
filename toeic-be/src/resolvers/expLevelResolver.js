@@ -4,6 +4,8 @@ const {
   UserInputError,
 } = require("apollo-server-express");
 
+const ExpLevelService = require("../../services/ExpLevelService");
+
 const expLevelResolver = {
   Query: {
     getAllExpLevels: async () => {
@@ -37,6 +39,26 @@ const expLevelResolver = {
         return nextLevel;
       } catch (error) {
         throw new Error("Lỗi khi lấy cấp độ tiếp theo: " + error.message);
+      }
+    },
+
+    // ✅ BỔ SUNG CHUẨN CHỈ Ở ĐÂY
+    getMyLevelProgress: async (_, __, { user }) => {
+      if (!user) throw new AuthenticationError("Bạn cần đăng nhập.");
+
+      try {
+        const progress = await ExpLevelService.calculateUserLevelProgress(
+          user.id
+        );
+        return {
+          currentLevel: progress.currentLevel,
+          nextLevel: progress.nextLevel,
+          currentExp: progress.currentExp,
+          expToNextLevel: progress.expToNextLevel,
+          progressRatio: progress.progressRatio,
+        };
+      } catch (error) {
+        throw new Error("Lỗi khi lấy tiến độ cấp độ: " + error.message);
       }
     },
   },

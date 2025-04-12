@@ -1,3 +1,5 @@
+const mongoose = require("mongoose");
+
 const VocabularySeedSchema = new mongoose.Schema(
   {
     userId: {
@@ -34,3 +36,5 @@ const VocabularySeedSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+module.exports = mongoose.model("VocabularySeed", VocabularySeedSchema);

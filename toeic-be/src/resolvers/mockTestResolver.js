@@ -1,43 +1,43 @@
-const { Op } = require("sequelize");
-const MockTest = require("../../models/mysql/MockTest");
+const mockTestService = require("../../services/mockTestService");
 
 const mockTestResolver = {
   Query: {
+    // Lấy tất cả Mock Tests với bộ lọc
     getAllMockTests: async (_, { filter }) => {
-      const where = {};
-
-      if (filter) {
-        const { difficulty, is_active, is_public, created_by, keyword } =
-          filter;
-
-        if (difficulty) where.difficulty = difficulty;
-        if (is_active !== undefined) where.is_active = is_active;
-        if (is_public !== undefined) where.is_public = is_public;
-        if (created_by) where.created_by = created_by;
-        if (keyword) {
-          where.title = { [Op.like]: `%${keyword}%` };
-        }
+      try {
+        const mockTests = await mockTestService.getAllMockTests(filter);
+        return mockTests;
+      } catch (error) {
+        throw new Error(`Error fetching mock tests: ${error.message}`);
       }
-
-      return await MockTest.findAll({ where, order: [["createdAt", "DESC"]] });
     },
 
+    // Lấy Mock Test theo ID
     getMockTestById: async (_, { id }) => {
-      return await MockTest.findByPk(id);
+      try {
+        return await mockTestService.getMockTestById(id);
+      } catch (error) {
+        throw new Error(`Error fetching mock test: ${error.message}`);
+      }
     },
 
+    // Lấy tất cả Mock Tests theo người tạo
     getMockTestsByCreator: async (_, { creatorId }) => {
-      return await MockTest.findAll({
-        where: { created_by: creatorId },
-        order: [["createdAt", "DESC"]],
-      });
+      try {
+        return await mockTestService.getMockTestsByCreator(creatorId);
+      } catch (error) {
+        throw new Error(
+          `Error fetching mock tests by creator: ${error.message}`
+        );
+      }
     },
   },
 
   Mutation: {
+    // Tạo mới Mock Test
     createMockTest: async (_, { input }) => {
       try {
-        const mockTest = await MockTest.create(input);
+        const mockTest = await mockTestService.createMockTest(input);
         return {
           status: true,
           msg: "Mock test created successfully",
@@ -46,23 +46,16 @@ const mockTestResolver = {
       } catch (error) {
         return {
           status: false,
-          msg: error.message,
+          msg: `Error creating mock test: ${error.message}`,
           mockTest: null,
         };
       }
     },
 
+    // Cập nhật Mock Test
     updateMockTest: async (_, { id, input }) => {
       try {
-        const mockTest = await MockTest.findByPk(id);
-        if (!mockTest)
-          return {
-            status: false,
-            msg: "Mock test not found",
-            mockTest: null,
-          };
-
-        await mockTest.update(input);
+        const mockTest = await mockTestService.updateMockTest(id, input);
         return {
           status: true,
           msg: "Mock test updated successfully",
@@ -71,23 +64,16 @@ const mockTestResolver = {
       } catch (error) {
         return {
           status: false,
-          msg: error.message,
+          msg: `Error updating mock test: ${error.message}`,
           mockTest: null,
         };
       }
     },
 
+    // Xóa Mock Test
     deleteMockTest: async (_, { id }) => {
       try {
-        const mockTest = await MockTest.findByPk(id);
-        if (!mockTest)
-          return {
-            status: false,
-            msg: "Mock test not found",
-            mockTest: null,
-          };
-
-        await mockTest.destroy();
+        const mockTest = await mockTestService.deleteMockTest(id);
         return {
           status: true,
           msg: "Mock test deleted successfully",
@@ -96,7 +82,7 @@ const mockTestResolver = {
       } catch (error) {
         return {
           status: false,
-          msg: error.message,
+          msg: `Error deleting mock test: ${error.message}`,
           mockTest: null,
         };
       }

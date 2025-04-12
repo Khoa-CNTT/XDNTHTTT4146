@@ -8,6 +8,12 @@ class Question extends Model {
       as: "mockTest",
       onDelete: "CASCADE",
     });
+
+    this.belongsTo(models.Tower, {
+      foreignKey: "tower_id",
+      as: "tower",
+      onDelete: "SET NULL", // Giữ câu hỏi khi tầng bị xóa
+    });
   }
 }
 
@@ -26,6 +32,15 @@ Question.init(
         key: "id",
       },
       onDelete: "CASCADE",
+    },
+    tower_id: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      references: {
+        model: "towers", // Tên bảng Tower
+        key: "id",
+      },
+      onDelete: "SET NULL",
     },
     part: {
       type: DataTypes.INTEGER,
@@ -84,6 +99,7 @@ Question.init(
       { fields: ["mock_test_id"] },
       { fields: ["part"] },
       { fields: ["difficulty"] },
+      { fields: ["tower_id"] },
     ],
   }
 );

@@ -7,31 +7,17 @@ class Reward extends Model {
       foreignKey: "rewardId",
       as: "userRewards",
     });
-
-    this.hasMany(models.Mission, {
-      foreignKey: "rewardId",
-      as: "missions",
-    });
-
-    this.belongsToMany(models.User, {
-      through: models.UserReward,
-      foreignKey: "rewardId",
-      otherKey: "userId",
-      as: "users",
-    });
-
     this.belongsToMany(models.Mission, {
       through: models.MissionReward,
       foreignKey: "rewardId",
       otherKey: "missionId",
       as: "missionsRewarded",
     });
-
-    this.belongsToMany(models.Payment, {
-      through: models.PaymentReward,
+    this.belongsToMany(models.User, {
+      through: models.UserReward,
       foreignKey: "rewardId",
-      otherKey: "paymentId",
-      as: "paymentRewards",
+      otherKey: "userId",
+      as: "users",
     });
   }
 }
@@ -47,16 +33,8 @@ Reward.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    description: {
-      type: DataTypes.TEXT,
-      allowNull: true,
-    },
-    image: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
     type: {
-      type: DataTypes.ENUM("badge", "coin", "exp", "voucher", "custom"),
+      type: DataTypes.ENUM("badge", "coin", "exp", "voucher"),
       allowNull: false,
       defaultValue: "badge",
     },

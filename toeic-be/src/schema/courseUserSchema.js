@@ -1,6 +1,6 @@
 const { gql } = require("apollo-server-express");
 
-const courseUserSchema = gql`
+const courseUserTypeDefs = gql`
   scalar DateTime
 
   enum CourseUserStatus {
@@ -18,18 +18,13 @@ const courseUserSchema = gql`
     progress: Float!
     enrolledAt: DateTime!
     completedAt: DateTime
-    createdAt: DateTime!
-    updatedAt: DateTime!
-
-    user: User
     course: Course
+    user: User
   }
 
-  input CreateCourseUserInput {
+  input EnrollCourseInput {
     userId: ID!
     courseId: ID!
-    status: CourseUserStatus = active
-    progress: Float = 0
   }
 
   input UpdateCourseUserInput {
@@ -45,20 +40,17 @@ const courseUserSchema = gql`
   }
 
   extend type Query {
-    getAllCourseUsers: [CourseUser!]!
-    getCourseUserById(id: ID!): CourseUser
-    getCourseUsersByUser(userId: ID!): [CourseUser!]!
-    getCourseUsersByCourse(courseId: ID!): [CourseUser!]!
+    getUserCourses(userId: ID!): [CourseUser!]!
+    getCourseUsers(courseId: ID!): [CourseUser!]!
   }
 
   extend type Mutation {
-    createCourseUser(input: CreateCourseUserInput!): CourseUserResponse!
+    enrollCourse(input: EnrollCourseInput!): CourseUserResponse!
     updateCourseUser(
       id: ID!
       input: UpdateCourseUserInput!
     ): CourseUserResponse!
-    deleteCourseUser(id: ID!): CourseUserResponse!
   }
 `;
 
-module.exports = { courseUserSchema };
+module.exports = { typeDefs: courseUserTypeDefs };

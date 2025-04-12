@@ -12,6 +12,7 @@ const userNotificationSchema = new mongoose.Schema(
       type: String,
       enum: ["reward", "badge", "mission", "levelUp", "announcement", "system"],
       required: true,
+      index: true,
     },
     title: {
       type: String,
@@ -32,8 +33,22 @@ const userNotificationSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.Mixed,
       default: {},
     },
+    expiresAt: {
+      type: Date,
+      default: null,
+      index: true,
+    },
   },
   { timestamps: true }
 );
+
+userNotificationSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+
+userNotificationSchema.pre("save", function (next) {
+  if (this.expiresAt && this.expiresAt < new Date()) {
+    this.isRead = true;
+  }
+  next();
+});
 
 module.exports = mongoose.model("UserNotification", userNotificationSchema);

@@ -1,40 +1,36 @@
 const { gql } = require("apollo-server-express");
 
-const roleSchema = gql`
+const typeDefs = gql`
   type Role {
     id: ID!
     name: String!
-    createdAt: String
-    updatedAt: String
+    description: String
+    permissions: JSON
   }
 
   input CreateRoleInput {
     name: String!
+    description: String
+    permissions: JSON
   }
 
   input UpdateRoleInput {
-    name: String!
+    id: ID!
+    name: String
+    description: String
+    permissions: JSON
   }
 
-  type RolePayload {
-    success: Boolean!
-    message: String!
-    role: Role
-  }
-
-  extend type Query {
-    getAllRoles: [Role!]!
+  type Query {
+    getAllRoles: [Role]
     getRoleById(id: ID!): Role
   }
 
-  extend type Mutation {
-    createRole(input: CreateRoleInput!): RolePayload!
-    updateRole(id: ID!, input: UpdateRoleInput!): RolePayload!
-    deleteRole(id: ID!): RolePayload!
-
-    assignRoleToUser(userId: ID!, roleId: ID!): RolePayload!
-    removeRoleFromUser(userId: ID!, roleId: ID!): RolePayload!
+  type Mutation {
+    createRole(input: CreateRoleInput!): Role
+    updateRole(input: UpdateRoleInput!): Role
+    deleteRole(id: ID!): Boolean
   }
 `;
 
-module.exports = roleSchema;
+module.exports = { typeDefs };

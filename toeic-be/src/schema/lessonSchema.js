@@ -11,12 +11,6 @@ const lessonSchema = gql`
     grammar
   }
 
-  type Question {
-    id: ID!
-    content: String!
-    # Có thể mở rộng thêm các trường như choices, correctAnswer...
-  }
-
   type Lesson {
     id: ID!
     title: String!
@@ -29,7 +23,6 @@ const lessonSchema = gql`
     courseId: ID!
     createdAt: DateTime!
     updatedAt: DateTime
-    questions: [Question!]!
   }
 
   input CreateLessonInput {
@@ -62,7 +55,7 @@ const lessonSchema = gql`
   extend type Query {
     getLessonById(id: ID!): Lesson
     getLessonsByCourse(courseId: ID!): [Lesson!]!
-    getPreviewableLessons(courseId: ID): [Lesson!]!
+    getLessonsByType(type: LessonType!): [Lesson!]!
   }
 
   extend type Mutation {

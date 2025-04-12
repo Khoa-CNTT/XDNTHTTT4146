@@ -52,78 +52,128 @@ class UserProgressClass {
    * Tìm tiến độ học theo người dùng và bài học
    */
   static async findByUserAndLesson(userId, lessonId) {
-    return this.findOne({ userId, lessonId });
+    try {
+      return await this.findOne({ userId, lessonId });
+    } catch (error) {
+      throw new Error(
+        "Error finding user progress by lesson: " + error.message
+      );
+    }
   }
 
   /**
    * Lấy toàn bộ tiến độ học của người dùng (kèm lesson)
    */
   static async getUserProgress(userId) {
-    return this.find({ userId }).populate("lessonId");
+    try {
+      return await this.find({ userId }).populate("lessonId");
+    } catch (error) {
+      throw new Error("Error fetching user progress: " + error.message);
+    }
   }
 
   /**
    * Kiểm tra bài học đã hoàn thành chưa
    */
   static async isLessonCompleted(userId, lessonId) {
-    const progress = await this.findOne({ userId, lessonId });
-    return progress?.status === "completed";
+    try {
+      const progress = await this.findOne({ userId, lessonId });
+      return progress?.status === "completed";
+    } catch (error) {
+      throw new Error(
+        "Error checking if lesson is completed: " + error.message
+      );
+    }
   }
 
   /**
    * Tính tổng EXP của người dùng
    */
   static async getTotalExp(userId) {
-    const result = await this.aggregate([
-      { $match: { userId: new mongoose.Types.ObjectId(userId) } },
-      { $group: { _id: null, totalExp: { $sum: "$expGained" } } },
-    ]);
-    return result[0]?.totalExp || 0;
+    try {
+      const result = await this.aggregate([
+        { $match: { userId: new mongoose.Types.ObjectId(userId) } },
+        { $group: { _id: null, totalExp: { $sum: "$expGained" } } },
+      ]);
+      return result[0]?.totalExp || 0;
+    } catch (error) {
+      throw new Error("Error calculating total EXP: " + error.message);
+    }
   }
 
   /**
    * Cập nhật tiến độ
    */
   async updateProgress(newProgress, words = 0, exp = 0) {
-    if (newProgress < 0 || newProgress > 100) {
-      throw new Error("Progress must be between 0 and 100");
+    try {
+      if (newProgress < 0 || newProgress > 100) {
+        throw new Error("Progress must be between 0 and 100");
+      }
+
+      // Cập nhật tiến độ bài học
+      this.progress = Math.max(this.progress, newProgress);
+      this.wordsLearned += words;
+      this.expGained += exp;
+      this.lastActivityAt = new Date();
+
+      // Đánh dấu trạng thái bài học
+      if (this.progress >= 100) {
+        this.status = "completed";
+        this.progress = 100;
+      } else if (this.progress > 0) {
+        this.status = "in_progress";
+      }
+
+      return this.save();
+    } catch (error) {
+      throw new Error("Error updating progress: " + error.message);
     }
-
-    this.progress = Math.max(this.progress, newProgress);
-    this.wordsLearned += words;
-    this.expGained += exp;
-    this.lastActivityAt = new Date();
-
-    if (this.progress >= 100) {
-      this.status = "completed";
-      this.progress = 100;
-    } else if (this.progress > 0) {
-      this.status = "in_progress";
-    }
-
-    return this.save();
   }
 
   /**
    * Đánh dấu hoàn thành bài học
    */
   async markAsCompleted() {
-    this.status = "completed";
-    this.progress = 100;
-    this.lastActivityAt = new Date();
-    return this.save();
+    try {
+      this.status = "completed";
+      this.progress = 100;
+      this.lastActivityAt = new Date();
+      return this.save();
+    } catch (error) {
+      throw new Error("Error marking lesson as completed: " + error.message);
+    }
   }
 
   /**
    * Reset lại tiến độ bài học (nếu muốn học lại)
    */
   async resetProgress() {
-    this.progress = 0;
-    this.status = "not_started";
-    this.wordsLearned = 0;
-    this.expGained = 0;
-    this.lastActivityAt = null;
-    return this.save();
+    try {
+      this.progress = 0;
+      this.status = "not_started";
+      this.wordsLearned = 0;
+      this.expGained = 0;
+      this.lastActivityAt = null;
+      return this.save();
+    } catch (error) {
+      throw new Error("Error resetting progress: " + error.message);
+    }
+  }
+
+  /**
+   * Cập nhật số lượng từ học được và EXP trong tiến độ
+   */
+  async updateWordsAndExp(words = 0, exp = 0) {
+    try {
+      this.wordsLearned += words;
+      this.expGained += exp;
+      this.lastActivityAt = new Date();
+      return this.save();
+    } catch (error) {
+      throw new Error(
+        "Error updating words learned and exp gained: " + error.message
+      );
+    }
   }
 }
 

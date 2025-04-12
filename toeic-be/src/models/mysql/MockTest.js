@@ -3,7 +3,7 @@ const { sequelize } = require("../../config/mysql");
 
 class MockTest extends Model {
   static associate(models) {
-    this.hasMany(models.MockQuestion, {
+    this.hasMany(models.Question, {
       foreignKey: "mock_test_id",
       as: "questions",
       onDelete: "CASCADE",
@@ -51,7 +51,6 @@ MockTest.init(
     duration: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      comment: "Đơn vị: phút",
     },
 
     difficulty: {
@@ -63,7 +62,6 @@ MockTest.init(
     tags: {
       type: DataTypes.ARRAY(DataTypes.STRING),
       allowNull: true,
-      comment: "Gắn nhãn như: [“toeic-listening”, “practice-part7”]",
     },
 
     is_active: {
@@ -75,7 +73,6 @@ MockTest.init(
     is_public: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
-      comment: "Nếu là false thì chỉ admin hoặc người tạo mới thấy",
     },
 
     created_by: {

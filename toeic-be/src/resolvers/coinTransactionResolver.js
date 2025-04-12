@@ -1,76 +1,57 @@
-module.exports = {
+const {
+  createCoinTransaction,
+  getUserBalance,
+  getUserTransactions,
+  TransactionError,
+} = require("../services/coinTransactionService");
+
+const CoinTransactionResolver = {
   Query: {
-    // Lấy tất cả giao dịch (admin hoặc dùng cho thống kê)
     getAllCoinTransactions: async (_, __, { models }) => {
       return await models.CoinTransaction.findAll({
-        order: [["createdAt", "DESC"]],
         include: [{ model: models.User, as: "user" }],
+        order: [["createdAt", "DESC"]],
       });
     },
-
-    // Lấy chi tiết 1 giao dịch theo ID
     getCoinTransactionById: async (_, { id }, { models }) => {
       return await models.CoinTransaction.findByPk(id, {
         include: [{ model: models.User, as: "user" }],
       });
     },
-
-    // Lấy các giao dịch của 1 user
-    getCoinTransactionsByUser: async (_, { userId }, { models }) => {
-      return await models.CoinTransaction.findAll({
-        where: { userId },
-        order: [["createdAt", "DESC"]],
-      });
+    getCoinTransactionsByUser: async (_, { userId, type, limit }, __) => {
+      return await getUserTransactions(userId, limit, type);
+    },
+    getUserCoinBalance: async (_, { userId }) => {
+      return await getUserBalance(userId);
     },
   },
 
   Mutation: {
-    // Tạo giao dịch xu mới
-    createCoinTransaction: async (_, { input }, { models }) => {
+    createCoinTransaction: async (_, { input }) => {
       try {
-        const { userId, type, amount, note, sourceType, sourceId } = input;
-
-        const user = await models.User.findByPk(userId);
-        if (!user) throw new Error("Không tìm thấy người dùng");
-
-        if (type === "earn") {
-          user.coin += amount;
-        } else if (type === "spend") {
-          if (user.coin < amount) {
-            throw new Error("Không đủ xu để thực hiện giao dịch");
-          }
-          user.coin -= amount;
-        } else {
-          throw new Error("Loại giao dịch không hợp lệ (earn/spend)");
+        return await createCoinTransaction(input);
+      } catch (err) {
+        if (err instanceof TransactionError) {
+          return {
+            success: false,
+            message: err.message,
+            balance: null,
+            transaction: null,
+          };
         }
-
-        await user.save();
-
-        const transaction = await models.CoinTransaction.create({
-          userId,
-          type,
-          amount,
-          note,
-          sourceType,
-          sourceId,
-        });
-
-        return transaction;
-      } catch (error) {
-        throw new Error("Lỗi khi tạo giao dịch: " + error.message);
+        throw err;
       }
     },
   },
 
   CoinTransaction: {
-    // Format lại datetime nếu bạn có Scalar DateTime bên schema
     createdAt: (parent) => parent.createdAt?.toISOString(),
     updatedAt: (parent) => parent.updatedAt?.toISOString(),
-
-    // Gán user nếu có quan hệ include
     user: async (parent, _, { models }) => {
       if (parent.user) return parent.user;
       return await models.User.findByPk(parent.userId);
     },
   },
 };
+
+module.exports = CoinTransactionResolver;

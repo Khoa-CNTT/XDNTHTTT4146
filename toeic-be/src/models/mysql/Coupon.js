@@ -36,7 +36,6 @@ Coupon.init(
     maxUsage: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      comment: "Số lần coupon có thể được sử dụng (null = không giới hạn)",
     },
     usedCount: {
       type: DataTypes.INTEGER,

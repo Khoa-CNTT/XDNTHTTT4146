@@ -8,7 +8,6 @@ const paymentSchema = gql`
     MOMO
     PAYPAL
     BANK
-    CASH
   }
 
   enum PaymentStatus {
@@ -68,8 +67,12 @@ const paymentSchema = gql`
 
   extend type Query {
     getPaymentById(id: ID!): Payment
-    getPaymentsByUser(userId: ID!): [Payment!]!
-    getAllPayments: [Payment!]!
+    getPaymentsByUser(
+      userId: ID!
+      startDate: String
+      endDate: String
+    ): [Payment!]!
+    getAllPayments(startDate: String, endDate: String): [Payment!]!
   }
 
   extend type Mutation {

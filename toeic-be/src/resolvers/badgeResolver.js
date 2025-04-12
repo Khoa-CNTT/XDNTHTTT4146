@@ -1,27 +1,28 @@
+const BadgeService = require("../services/badgeService");
+
 module.exports = {
   Query: {
-    // Lấy tất cả badges (có thể kèm đã xoá nếu có flag)
     badges: async (_, { includeDeleted = false }, { models }) => {
-      const scope = includeDeleted ? "withDeleted" : undefined;
-      return await models.Badge.scope(scope).findAll();
+      const service = new BadgeService(models);
+      return await service.getAll(includeDeleted);
     },
 
-    // Lấy badge theo ID
     badge: async (_, { id }, { models }) => {
-      return await models.Badge.findByPk(id);
+      const service = new BadgeService(models);
+      return await service.getById(id);
     },
 
-    // Lấy danh sách badge đã xoá mềm
     deletedBadges: async (_, __, { models }) => {
-      return await models.Badge.scope("onlyDeleted").findAll();
+      const service = new BadgeService(models);
+      return await service.getDeleted();
     },
   },
 
   Mutation: {
-    // Tạo mới badge
     createBadge: async (_, { input }, { models }) => {
+      const service = new BadgeService(models);
       try {
-        const badge = await models.Badge.create(input);
+        const badge = await service.create(input);
         return {
           success: true,
           message: "Tạo huy hiệu thành công",
@@ -36,19 +37,10 @@ module.exports = {
       }
     },
 
-    // Cập nhật badge
     updateBadge: async (_, { id, input }, { models }) => {
+      const service = new BadgeService(models);
       try {
-        const badge = await models.Badge.findByPk(id);
-        if (!badge) {
-          return {
-            success: false,
-            message: "Không tìm thấy huy hiệu",
-            badge: null,
-          };
-        }
-
-        await badge.update(input);
+        const badge = await service.update(id, input);
         return {
           success: true,
           message: "Cập nhật huy hiệu thành công",
@@ -63,19 +55,10 @@ module.exports = {
       }
     },
 
-    // Xoá mềm badge
     deleteBadge: async (_, { id }, { models }) => {
+      const service = new BadgeService(models);
       try {
-        const badge = await models.Badge.findByPk(id);
-        if (!badge) {
-          return {
-            success: false,
-            message: "Huy hiệu không tồn tại",
-            badge: null,
-          };
-        }
-
-        await badge.destroy(); // Soft delete
+        const badge = await service.softDelete(id);
         return {
           success: true,
           message: "Đã xoá huy hiệu (soft delete)",
@@ -90,19 +73,10 @@ module.exports = {
       }
     },
 
-    // Khôi phục badge đã xoá
     restoreBadge: async (_, { id }, { models }) => {
+      const service = new BadgeService(models);
       try {
-        const badge = await models.Badge.scope("onlyDeleted").findByPk(id);
-        if (!badge) {
-          return {
-            success: false,
-            message: "Không tìm thấy huy hiệu đã xoá",
-            badge: null,
-          };
-        }
-
-        await badge.restore();
+        const badge = await service.restore(id);
         return {
           success: true,
           message: "Khôi phục huy hiệu thành công",
@@ -117,19 +91,10 @@ module.exports = {
       }
     },
 
-    // (Tùy chọn) Xoá vĩnh viễn badge khỏi DB
     forceDeleteBadge: async (_, { id }, { models }) => {
+      const service = new BadgeService(models);
       try {
-        const badge = await models.Badge.findByPk(id, { paranoid: false });
-        if (!badge) {
-          return {
-            success: false,
-            message: "Không tìm thấy huy hiệu để xoá vĩnh viễn",
-            badge: null,
-          };
-        }
-
-        await badge.destroy({ force: true }); // Hard delete
+        await service.forceDelete(id);
         return {
           success: true,
           message: "Đã xoá vĩnh viễn huy hiệu khỏi hệ thống",

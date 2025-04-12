@@ -67,7 +67,16 @@ Payment.init(
     finalAmount: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
-      validate: { min: 0.0 },
+      validate: {
+        min: 0.0,
+        max(value) {
+          if (this.amount < value) {
+            throw new Error(
+              "Final amount cannot be greater than the original amount"
+            );
+          }
+        },
+      },
     },
 
     method: {
@@ -110,6 +119,13 @@ Payment.init(
     timestamps: true,
     paranoid: true,
     underscored: true,
+    hooks: {
+      beforeUpdate: (payment, options) => {
+        if (payment.status === "failed") {
+          // Thêm logic xử lý nếu cần khi trạng thái thanh toán là "failed"
+        }
+      },
+    },
     indexes: [
       { fields: ["userId"] },
       { fields: ["courseId"] },

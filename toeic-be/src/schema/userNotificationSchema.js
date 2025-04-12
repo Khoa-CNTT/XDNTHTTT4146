@@ -1,59 +1,58 @@
 const { gql } = require("apollo-server-express");
 
-const userNotificationSchema = gql`
-  enum UserRole {
-    STUDENT
-    TEACHER
-    ADMIN
-    ALL
+const typeDefs = gql`
+  enum UserNotificationType {
+    reward
+    badge
+    mission
+    levelUp
+    announcement
+    system
   }
 
-  type SystemNotification {
+  enum NotificationStatus {
+    read
+    unread
+  }
+
+  # UserNotification type
+  type UserNotification {
     id: ID!
+    userId: ID!
+    type: UserNotificationType!
     title: String!
-    description: String!
-    targetRole: UserRole!
-    isActive: Boolean!
-    sender: User
-    createdAt: String
-    updatedAt: String
-  }
-
-  input CreateSystemNotificationInput {
-    title: String!
-    description: String!
-    targetRole: UserRole! # Enum để tránh nhập sai chuỗi
-  }
-
-  input UpdateSystemNotificationInput {
-    id: ID!
-    title: String
-    description: String
-    targetRole: UserRole
-    isActive: Boolean
-  }
-
-  type NotificationPayload {
     message: String!
-    notification: SystemNotification
+    isRead: Boolean!
+    metadata: JSON
+    createdAt: DateTime!
+    updatedAt: DateTime!
   }
 
-  extend type Query {
-    getSystemNotifications(role: UserRole!): [SystemNotification!]!
-    getSystemNotificationById(id: ID!): SystemNotification
+  # Input type để tạo UserNotification
+  input UserNotificationInput {
+    userId: ID!
+    type: UserNotificationType!
+    title: String!
+    message: String!
+    isRead: Boolean
+    metadata: JSON
   }
 
-  extend type Mutation {
-    createSystemNotification(
-      input: CreateSystemNotificationInput!
-    ): NotificationPayload!
+  # Query để lấy thông báo của người dùng
+  type Query {
+    getUserNotifications(userId: ID!): [UserNotification]
+    getUserNotification(id: ID!): UserNotification
+  }
 
-    updateSystemNotification(
-      input: UpdateSystemNotificationInput!
-    ): NotificationPayload!
-
-    deleteSystemNotification(id: ID!): NotificationPayload!
+  # Mutation để tạo, cập nhật, xóa UserNotification
+  type Mutation {
+    createUserNotification(input: UserNotificationInput): UserNotification
+    updateUserNotificationStatus(
+      notificationId: ID!
+      isRead: Boolean!
+    ): UserNotification
+    deleteUserNotification(notificationId: ID!): Boolean
   }
 `;
 
-module.exports = systemNotificationSchema;
+module.exports = { typeDefs };

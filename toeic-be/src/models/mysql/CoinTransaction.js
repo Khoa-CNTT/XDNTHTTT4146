@@ -1,7 +1,14 @@
 const { DataTypes, Model, Op } = require("sequelize");
 const { sequelize } = require("../../config/mysql");
 
-class CoinTransaction extends Model {}
+class CoinTransaction extends Model {
+  static associate(models) {
+    this.belongsTo(models.User, {
+      foreignKey: "userId",
+      as: "user",
+    });
+  }
+}
 
 CoinTransaction.init(
   {

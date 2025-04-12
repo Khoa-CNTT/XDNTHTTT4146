@@ -8,9 +8,6 @@ class Game extends Model {
       as: "user",
       onDelete: "CASCADE",
     });
-
-    // this.hasMany(models.GameSession, { foreignKey: "gameId", as: "sessions" });
-    // this.hasMany(models.GameResult, { foreignKey: "gameId", as: "results" });
   }
 }
 

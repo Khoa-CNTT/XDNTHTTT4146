@@ -1,7 +1,16 @@
 const { DataTypes, Model, Op } = require("sequelize");
 const { sequelize } = require("../../config/mysql");
 
-class Badge extends Model {}
+class Badge extends Model {
+  static associate(models) {
+    this.belongsToMany(models.User, {
+      through: models.UserBadge,
+      foreignKey: "badgeId",
+      otherKey: "userId",
+      as: "usersWithBadge",
+    });
+  }
+}
 
 Badge.init(
   {

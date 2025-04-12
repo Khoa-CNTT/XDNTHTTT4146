@@ -15,15 +15,15 @@ Level.init(
       allowNull: false,
       unique: true,
       validate: {
-        len: [3, 50],
+        len: [3, 50], // Tên cấp độ phải có độ dài từ 3 đến 50 ký tự
       },
     },
     targetScore: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
-        min: 0,
-        max: 990,
+        min: 0, // Điểm mục tiêu không nhỏ hơn 0
+        max: 990, // Điểm mục tiêu không lớn hơn 990
       },
     },
     description: {
@@ -37,16 +37,16 @@ Level.init(
     expRequired: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      defaultValue: 0,
+      defaultValue: 0, // Mặc định yêu cầu 0 kinh nghiệm
     },
     badgeId: {
       type: DataTypes.UUID,
-      allowNull: true,
+      allowNull: true, // Có thể không có badge
     },
     order: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      defaultValue: 0,
+      defaultValue: 0, // Đặt mặc định là 0
     },
   },
   {
@@ -54,8 +54,11 @@ Level.init(
     modelName: "Level",
     tableName: "levels",
     timestamps: true,
-    paranoid: true,
-    indexes: [{ fields: ["expRequired"] }, { fields: ["order"] }],
+    paranoid: true, // Cho phép sử dụng soft delete
+    indexes: [
+      { fields: ["expRequired"] }, // Tạo chỉ mục cho expRequired
+      { fields: ["order"] }, // Tạo chỉ mục cho order
+    ],
   }
 );
 

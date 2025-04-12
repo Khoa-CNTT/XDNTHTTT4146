@@ -51,7 +51,6 @@ TowerLevel.init(
         min: 1,
         max: 7,
       },
-      comment: "Tương ứng với part TOEIC",
     },
 
     order: {
@@ -73,7 +72,6 @@ TowerLevel.init(
     isLocked: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
-      comment: "True = khóa, cần hoàn thành tầng trước để mở",
     },
 
     description: {
@@ -81,7 +79,6 @@ TowerLevel.init(
       allowNull: true,
     },
 
-    // === Game Info ===
     gameType: {
       type: DataTypes.ENUM(
         "matching_picture",
@@ -99,37 +96,6 @@ TowerLevel.init(
       type: DataTypes.TEXT,
       allowNull: true,
     },
-
-    gameIconUrl: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      validate: { isUrl: true },
-    },
-
-    // === Optional UI/UX Enhancements ===
-    thumbnailUrl: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      validate: { isUrl: true },
-    },
-
-    backgroundMusic: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      validate: { isUrl: true },
-    },
-
-    timeLimit: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      comment: "Số giây giới hạn thời gian nếu có",
-    },
-
-    bonusExp: {
-      type: DataTypes.INTEGER,
-      defaultValue: 0,
-      comment: "EXP thưởng nếu hoàn thành tầng này",
-    },
   },
   {
     sequelize,
@@ -138,6 +104,7 @@ TowerLevel.init(
     timestamps: true,
     paranoid: true,
     underscored: true,
+    indexes: [{ fields: ["slug"] }],
   }
 );
 

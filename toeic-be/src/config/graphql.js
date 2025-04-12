@@ -2,7 +2,7 @@ const { ApolloServer } = require("apollo-server-express");
 const express = require("express");
 const cors = require("cors");
 const { typeDefs } = require("../schema/schema");
-const { resolvers } = require("../resolvers/resolvers");
+const { resolvers } = require("../resolvers/resolver");
 const { getUserFromToken } = require("../utils/jwtHelper");
 const errorHandler = require("../middlewares/errorHandler");
 

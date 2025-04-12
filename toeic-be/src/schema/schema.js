@@ -1,48 +1,22 @@
+const fs = require("fs");
+const path = require("path");
 const { mergeTypeDefs } = require("@graphql-tools/merge");
 
-// Import các schema con
-const { typeDefs: roleTypeDefs } = require("./roleSchema");
-const { typeDefs: userTypeDefs } = require("./userSchema");
-const { typeDefs: lessonTypeDefs } = require("./lessonSchema");
-const { typeDefs: courseTypeDefs } = require("./courseSchema");
-const { typeDefs: gameTypeDefs } = require("./gameSchema");
-const { typeDefs: badgeTypeDefs } = require("./badgeSchema");
-const { typeDefs: leaderboardTypeDefs } = require("./leaderboardSchema");
-const { typeDefs: missionTypeDefs } = require("./missionSchema");
-const { typeDefs: paymentTypeDefs } = require("./paymentSchema");
-const {
-  typeDefs: userNotificationTypeDefs,
-} = require("./userNotificationSchema");
-const {
-  typeDefs: systemnotificationTypeDefs,
-} = require("./systemNotificationSchema");
-const {
-  typeDefs: vocabularyGardenTypeDefs,
-} = require("./vocabularyGardenSchema");
-const {
-  typeDefs: coinTransactionTypeDefs,
-} = require("./coinTransactionSchema");
+const schemas = [];
 
-const { imageSchema } = require("./imageSchema");
-const { itemSchema } = require("./itemSchema");
-const { typeDefs: mockTestTypeDefs } = require("./mockTestSchema");
+fs.readdirSync(__dirname).forEach((file) => {
+  if (file === "index.js" || !file.endsWith("Schema.js")) return;
 
-// Merge tất cả các schema lại
-const typeDefs = mergeTypeDefs([
-  userTypeDefs,
-  lessonTypeDefs,
-  courseTypeDefs,
-  gameTypeDefs,
-  badgeTypeDefs,
-  leaderboardTypeDefs,
-  missionTypeDefs,
-  paymentTypeDefs,
-  notificationTypeDefs,
-  vocabularyGardenTypeDefs,
-  coinTransactionTypeDefs,
-  imageSchema,
-  itemSchema,
-  mockTestTypeDefs,
-]);
+  const schemaModule = require(path.join(__dirname, file));
+  if (schemaModule.typeDefs) {
+    schemas.push(schemaModule.typeDefs);
+  } else if (schemaModule.imageSchema || schemaModule.itemSchema) {
+    // Cho những schema không đặt tên là typeDefs
+    if (schemaModule.imageSchema) schemas.push(schemaModule.imageSchema);
+    if (schemaModule.itemSchema) schemas.push(schemaModule.itemSchema);
+  }
+});
+
+const typeDefs = mergeTypeDefs(schemas);
 
 module.exports = { typeDefs };

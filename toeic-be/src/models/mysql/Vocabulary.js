@@ -105,7 +105,6 @@ Vocabulary.init(
     tags: {
       type: DataTypes.JSON,
       allowNull: true,
-      comment: "List of tags for AI suggestion or clustering",
     },
 
     level: {

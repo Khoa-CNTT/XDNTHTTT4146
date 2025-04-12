@@ -1,351 +1,205 @@
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
 const { GraphQLError } = require("graphql");
+const userService = require("../services/userService");
 
-const User = require("../models/mysql/User");
-const Vocabulary = require("../models/mysql/Vocabulary");
-const Game = require("../models/mysql/Game");
-const Payment = require("../models/mysql/Payment");
-const Mission = require("../models/mysql/Mission");
-const Reward = require("../models/mysql/Reward");
-const UserReward = require("../models/mysql/UserReward");
-const Course = require("../models/mysql/Course");
-const Enrollment = require("../models/mysql/Enrollment");
-const Badge = require("../models/mysql/Badge");
-
-const UserProgress = require("../models/mongo/UserProgress");
-const { Op } = require("sequelize");
-
-const { OAuth2Client } = require("google-auth-library");
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-
-const userResolvers = {
+const userResolver = {
   Query: {
-    getUsers: async (_, __, context) => {
-      if (!context.user || context.user.role !== "admin") {
-        throw new GraphQLError("Only admin can access user list", {
-          extensions: { code: "FORBIDDEN" },
+    // Lấy thông tin người dùng theo ID
+    getUser: async (parent, { userId }, context) => {
+      try {
+        // Kiểm tra nếu người dùng đã đăng nhập
+        if (!context.userId || context.userId !== userId) {
+          throw new GraphQLError("Unauthorized", {
+            extensions: { code: "UNAUTHORIZED" },
+          });
+        }
+
+        const user = await userService.getUserById(userId);
+        if (!user) {
+          throw new GraphQLError("User not found", {
+            extensions: { code: "NOT_FOUND" },
+          });
+        }
+
+        return user;
+      } catch (error) {
+        throw new GraphQLError(error.message, {
+          extensions: { code: "INTERNAL_SERVER_ERROR" },
         });
       }
-      return await User.findAll();
     },
 
-    getUsersWithPagination: async (_, { page = 1, limit = 10 }, context) => {
-      if (!context.user || context.user.role !== "admin") {
-        throw new GraphQLError("Only admin can access user list", {
-          extensions: { code: "FORBIDDEN" },
+    // Kiểm tra email đã tồn tại chưa
+    checkEmailExistence: async (parent, { email }) => {
+      try {
+        const exists = await userService.checkEmailExistence(email);
+        return exists;
+      } catch (error) {
+        throw new GraphQLError(error.message, {
+          extensions: { code: "INTERNAL_SERVER_ERROR" },
         });
       }
-
-      const offset = (page - 1) * limit;
-      const { count, rows } = await User.findAndCountAll({
-        offset,
-        limit,
-        order: [["createdAt", "DESC"]],
-      });
-
-      return {
-        users: rows,
-        total: count,
-        totalPages: Math.ceil(count / limit),
-        currentPage: page,
-      };
-    },
-
-    searchUsers: async (_, { keyword }, context) => {
-      if (!context.user || context.user.role !== "admin") {
-        throw new GraphQLError("Only admin can search users", {
-          extensions: { code: "FORBIDDEN" },
-        });
-      }
-
-      return await User.findAll({
-        where: {
-          [Op.or]: [
-            { name: { [Op.like]: `%${keyword}%` } },
-            { email: { [Op.like]: `%${keyword}%` } },
-          ],
-        },
-      });
-    },
-
-    profile: async (_, __, context) => {
-      if (!context.user) {
-        throw new GraphQLError("Not authenticated", {
-          extensions: { code: "UNAUTHORIZED" },
-        });
-      }
-      return await User.findByPk(context.user.id);
-    },
-
-    getUserRole: async (_, { userId }) => {
-      const user = await User.findByPk(userId, { attributes: ["role"] });
-      return user ? user.role : null;
-    },
-
-    getUserProgress: async (_, { userId }) => {
-      return await UserProgress.findOne({ userId });
-    },
-
-    getUserGameProgress: async (_, { userId }) => {
-      return await UserProgress.findOne(
-        { userId },
-        { projection: { gameProgress: 1, _id: 0 } }
-      );
-    },
-
-    getVocabularies: async () => await Vocabulary.findAll(),
-
-    getGames: async () => await Game.findAll(),
-
-    getLeaderboard: async () => {
-      const leaderboard = await User.findAll({
-        order: [["exp", "DESC"]],
-        attributes: ["id", "name", "exp"],
-      });
-      return leaderboard.map((user, index) => ({
-        user,
-        rank: index + 1,
-        exp: user.exp,
-      }));
-    },
-
-    getUserBadges: async (_, { userId }) => {
-      return await Badge.findAll({
-        include: [{ model: User, where: { id: userId } }],
-      });
-    },
-
-    getPayments: async (_, { userId }) => {
-      return await Payment.findAll({ where: { userId } });
-    },
-
-    getDailyMissions: async () => await Mission.findAll(),
-
-    getRewards: async () => await Reward.findAll(),
-
-    getUserRewards: async (_, { userId }) => {
-      return await UserReward.findAll({ where: { userId } });
-    },
-
-    getCoursesByTeacher: async (_, { teacherId }) => {
-      return await Course.findAll({ where: { teacherId } });
-    },
-
-    getStudentsInCourse: async (_, { courseId }) => {
-      return await Enrollment.findAll({
-        where: { courseId },
-        include: [{ model: User, attributes: ["id", "name", "email"] }],
-      });
     },
   },
 
   Mutation: {
-    googleLogin: async (_, { idToken }) => {
+    // Đăng ký người dùng mới
+    registerUser: async (parent, { name, email, password }) => {
       try {
-        const ticket = await client.verifyIdToken({
-          idToken,
-          audience: process.env.GOOGLE_CLIENT_ID,
-        });
-        const payload = ticket.getPayload();
-        const { email, name } = payload;
-
-        let user = await User.findOne({ where: { email } });
-        if (!user) {
-          user = await User.create({
-            email,
-            name,
-            password: "",
-            role: "student",
-            status: "active",
-            exp: 0,
-            coins: 0,
-          });
-        }
-
-        const token = jwt.sign(
-          { userId: user.id, email: user.email, role: user.role },
-          process.env.JWT_SECRET,
-          { expiresIn: "1d" }
-        );
-
+        const user = await userService.registerUser(name, email, password);
         return {
           status: true,
-          msg: "Login with Google successful",
-          token,
+          msg: "User registered successfully",
           user,
         };
       } catch (error) {
-        throw new GraphQLError("Google login failed", {
-          extensions: { code: "UNAUTHORIZED" },
+        throw new GraphQLError(error.message, {
+          extensions: { code: "INTERNAL_SERVER_ERROR" },
         });
       }
     },
 
-    register: async (_, { name, email, password }) => {
-      const existingUser = await User.findOne({ where: { email } });
-      if (existingUser) {
-        throw new GraphQLError("Email already in use", {
-          extensions: { code: "BAD_REQUEST" },
+    // Đăng nhập người dùng
+    loginUser: async (parent, { email, password }) => {
+      try {
+        const user = await userService.loginUser(email, password);
+        return {
+          status: true,
+          msg: "Login successful",
+          user,
+        };
+      } catch (error) {
+        throw new GraphQLError(error.message, {
+          extensions: { code: "INTERNAL_SERVER_ERROR" },
         });
       }
-
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const user = await User.create({
-        name,
-        email,
-        password: hashedPassword,
-        role: "student",
-        exp: 0,
-        coins: 0,
-      });
-
-      return { status: true, msg: "User registered successfully!" };
     },
 
-    login: async (_, { email, password }) => {
-      const user = await User.findOne({ where: { email } });
-      if (!user) {
-        throw new GraphQLError("User not found", {
-          extensions: { code: "NOT_FOUND" },
+    // Cập nhật avatar người dùng
+    updateUserAvatar: async (parent, { userId, base64Image }, context) => {
+      try {
+        // Kiểm tra quyền truy cập
+        if (!context.userId || context.userId !== userId) {
+          throw new GraphQLError("Unauthorized", {
+            extensions: { code: "UNAUTHORIZED" },
+          });
+        }
+
+        const result = await userService.updateUserAvatar(userId, base64Image);
+        return result;
+      } catch (error) {
+        throw new GraphQLError(error.message, {
+          extensions: { code: "INTERNAL_SERVER_ERROR" },
         });
       }
-
-      if (user.status === "banned") {
-        throw new GraphQLError("This user is banned. Access is denied.", {
-          extensions: { code: "UNAUTHORIZED" },
-        });
-      }
-
-      const isPasswordValid = await bcrypt.compare(password, user.password);
-      if (!isPasswordValid) {
-        throw new GraphQLError("Invalid password", {
-          extensions: { code: "UNAUTHORIZED" },
-        });
-      }
-
-      const token = jwt.sign(
-        { userId: user.id, email: user.email, role: user.role },
-        process.env.JWT_SECRET,
-        { expiresIn: "1d" }
-      );
-
-      return { status: true, msg: "Login successful!", token, user };
     },
 
-    updateUserProgress: async (_, { userId, completedLessons, score }) => {
-      const progress = await UserProgress.findOneAndUpdate(
-        { userId },
-        { completedLessons, score },
-        { new: true, upsert: true }
-      );
-      return progress;
+    // Cập nhật thông tin người dùng
+    updateUserProfile: async (parent, { userId, name, avatar }, context) => {
+      try {
+        // Kiểm tra quyền truy cập
+        if (!context.userId || context.userId !== userId) {
+          throw new GraphQLError("Unauthorized", {
+            extensions: { code: "UNAUTHORIZED" },
+          });
+        }
+
+        const result = await userService.updateUserProfile(
+          userId,
+          name,
+          avatar
+        );
+        return result;
+      } catch (error) {
+        throw new GraphQLError(error.message, {
+          extensions: { code: "INTERNAL_SERVER_ERROR" },
+        });
+      }
     },
 
-    lockUser: async (_, { id }, context) => {
-      if (!context.user || context.user.role !== "admin") {
-        throw new GraphQLError("Only admin can ban user", {
-          extensions: { code: "FORBIDDEN" },
+    // Đổi mật khẩu người dùng
+    changeUserPassword: async (
+      parent,
+      { userId, currentPassword, newPassword },
+      context
+    ) => {
+      try {
+        // Kiểm tra quyền truy cập
+        if (!context.userId || context.userId !== userId) {
+          throw new GraphQLError("Unauthorized", {
+            extensions: { code: "UNAUTHORIZED" },
+          });
+        }
+
+        const result = await userService.changeUserPassword(
+          userId,
+          currentPassword,
+          newPassword
+        );
+        return result;
+      } catch (error) {
+        throw new GraphQLError(error.message, {
+          extensions: { code: "INTERNAL_SERVER_ERROR" },
         });
       }
-
-      const user = await User.findByPk(id);
-      if (!user)
-        throw new GraphQLError("User not found", {
-          extensions: { code: "NOT_FOUND" },
-        });
-
-      if (user.status === "banned") {
-        return { status: false, msg: "User is already banned." };
-      }
-
-      await user.update({ status: "banned" });
-      return { status: true, msg: "User has been banned successfully." };
     },
 
-    unlockUser: async (_, { id }, context) => {
-      if (!context.user || context.user.role !== "admin") {
-        throw new GraphQLError("Only admin can unlock user", {
-          extensions: { code: "FORBIDDEN" },
+    // Khóa tài khoản người dùng
+    lockUserAccount: async (parent, { userId }, context) => {
+      try {
+        // Kiểm tra quyền truy cập
+        if (!context.userId || context.userId !== userId) {
+          throw new GraphQLError("Unauthorized", {
+            extensions: { code: "UNAUTHORIZED" },
+          });
+        }
+
+        const result = await userService.lockUserAccount(userId);
+        return result;
+      } catch (error) {
+        throw new GraphQLError(error.message, {
+          extensions: { code: "INTERNAL_SERVER_ERROR" },
         });
       }
-
-      const user = await User.findByPk(id);
-      if (!user)
-        throw new GraphQLError("User not found", {
-          extensions: { code: "NOT_FOUND" },
-        });
-
-      if (user.status === "active") {
-        return { status: false, msg: "User is already active." };
-      }
-
-      await user.update({ status: "active" });
-      return { status: true, msg: "User has been activated successfully." };
     },
 
-    deleteUser: async (_, { id }, context) => {
-      if (!context.user || context.user.role !== "admin") {
-        throw new GraphQLError("Only admin can delete users", {
-          extensions: { code: "FORBIDDEN" },
+    // Mở khóa tài khoản người dùng
+    unlockUserAccount: async (parent, { userId }, context) => {
+      try {
+        // Kiểm tra quyền truy cập
+        if (!context.userId || context.userId !== userId) {
+          throw new GraphQLError("Unauthorized", {
+            extensions: { code: "UNAUTHORIZED" },
+          });
+        }
+
+        const result = await userService.unlockUserAccount(userId);
+        return result;
+      } catch (error) {
+        throw new GraphQLError(error.message, {
+          extensions: { code: "INTERNAL_SERVER_ERROR" },
         });
       }
-
-      const user = await User.findByPk(id);
-      if (!user) throw new GraphQLError("User not found");
-
-      await user.update({ status: "deleted" });
-      return { status: true, msg: "User deleted (soft) successfully." };
     },
 
-    updateProfile: async (_, { id, name, avatar }, context) => {
-      if (!context.user || context.user.id !== id) {
-        throw new GraphQLError("Unauthorized", {
-          extensions: { code: "UNAUTHORIZED" },
+    // Xóa người dùng
+    deleteUser: async (parent, { userId }, context) => {
+      try {
+        // Kiểm tra quyền truy cập
+        if (!context.userId || context.userId !== userId) {
+          throw new GraphQLError("Unauthorized", {
+            extensions: { code: "UNAUTHORIZED" },
+          });
+        }
+
+        const result = await userService.deleteUser(userId);
+        return result;
+      } catch (error) {
+        throw new GraphQLError(error.message, {
+          extensions: { code: "INTERNAL_SERVER_ERROR" },
         });
       }
-
-      const user = await User.findByPk(id);
-      if (!user)
-        throw new GraphQLError("User not found", {
-          extensions: { code: "NOT_FOUND" },
-        });
-
-      await user.update({ name, avatar });
-      return { status: true, msg: "Profile updated successfully.", user };
-    },
-
-    changePassword: async (_, { currentPassword, newPassword }, context) => {
-      if (!context.user) {
-        throw new GraphQLError("Unauthorized", {
-          extensions: { code: "UNAUTHORIZED" },
-        });
-      }
-
-      const user = await User.findByPk(context.user.id);
-      if (!user) throw new GraphQLError("User not found");
-
-      const isMatch = await bcrypt.compare(currentPassword, user.password);
-      if (!isMatch) throw new GraphQLError("Current password is incorrect");
-
-      const hashedNewPassword = await bcrypt.hash(newPassword, 64);
-      await user.update({ password: hashedNewPassword });
-
-      return { status: true, msg: "Password changed successfully." };
-    },
-
-    logout: async (_, __, context) => {
-      if (!context.user) {
-        throw new GraphQLError("Unauthorized", {
-          extensions: { code: "UNAUTHORIZED" },
-        });
-      }
-
-      return { status: true, msg: "Logout successful!" };
-    },
-    updateAvatar: async (_, { userId, base64Image }) => {
-      return await userService.updateUserAvatar(userId, base64Image);
     },
   },
 };
-module.exports = userResolvers;
+
+module.exports = userResolver;

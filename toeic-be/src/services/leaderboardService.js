@@ -39,12 +39,11 @@ async function saveLeaderboardHistory() {
       email: player.User?.email || "",
     }));
 
-    // Lưu vào MongoDB
-    await LeaderboardHistory.insertMany(historyRecords);
-
+    // Lưu vào MongoDB (bulk insert)
+    const result = await LeaderboardHistory.insertMany(historyRecords);
     console.log(
       `✅ [${snapshotAt.toISOString()}] Đã lưu ${
-        historyRecords.length
+        result.length
       } người top leaderboard vào MongoDB.`
     );
   } catch (error) {
@@ -52,7 +51,7 @@ async function saveLeaderboardHistory() {
       "❌ Lỗi khi lưu lịch sử leaderboard:",
       error.message || error
     );
-    // Có thể log lỗi vào hệ thống cảnh báo (Sentry, Slack, mail dev, ...)
+    // Log lỗi vào hệ thống cảnh báo nếu cần (Sentry, Slack, email, ...)
   }
 }
 

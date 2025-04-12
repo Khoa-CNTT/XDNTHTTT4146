@@ -24,11 +24,14 @@ import TestingPage from "./pages/TestingPage";
 import TowerPage from "./pages/TowerPage";
 import CourseManagement from "./pages/admin/CourseManagement";
 import UserManagement from "./pages/admin/UserManagement";
+import AdminLayout from "./components/admin/AdminLayout";
 
 const Layout = ({ children }) => {
   const location = useLocation();
   const noNavRoutes = ["/login", "/forgot-password"];
-  const hideNavbar = noNavRoutes.includes(location.pathname);
+  const hideNavbar =
+    noNavRoutes.includes(location.pathname) ||
+    location.pathname.startsWith("/admin");
 
   return (
     <>
@@ -65,7 +68,14 @@ const App = () => {
           <Route
             path="/admin/user-management"
             element={
-              <PrivateRoute requiredRole="Admin" element={<UserManagement />} />
+              <PrivateRoute
+                requiredRole="Admin"
+                element={
+                  <AdminLayout>
+                    <UserManagement />
+                  </AdminLayout>
+                }
+              />
             }
           />
           <Route
@@ -73,10 +83,15 @@ const App = () => {
             element={
               <PrivateRoute
                 requiredRole="Admin"
-                element={<CourseManagement />}
+                element={
+                  <AdminLayout>
+                    <CourseManagement />
+                  </AdminLayout>
+                }
               />
             }
           />
+
           <Route
             path="/student"
             element={
@@ -90,7 +105,7 @@ const App = () => {
             }
           />
 
-          {/* Default fallback */}
+          {/* Fallback */}
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </Layout>

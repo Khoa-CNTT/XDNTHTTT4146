@@ -1,7 +1,5 @@
 const { DataTypes, Model } = require("sequelize");
 const { sequelize } = require("../../config/mysql");
-const User = require("./User");
-const Reward = require("./Reward");
 
 class UserReward extends Model {
   static associate(models) {
@@ -10,7 +8,6 @@ class UserReward extends Model {
       as: "user",
       onDelete: "CASCADE",
     });
-
     UserReward.belongsTo(models.Reward, {
       foreignKey: "rewardId",
       as: "reward",
@@ -64,9 +61,5 @@ UserReward.init(
     ],
   }
 );
-
-// Associations outside of static method (if needed in index.js)
-UserReward.belongsTo(User, { foreignKey: "userId", as: "user" });
-UserReward.belongsTo(Reward, { foreignKey: "rewardId", as: "reward" });
 
 module.exports = UserReward;

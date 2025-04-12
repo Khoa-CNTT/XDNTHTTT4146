@@ -2,12 +2,15 @@ const fs = require("fs");
 const path = require("path");
 const chalk = require("chalk");
 const { sequelize } = require("../config/mysql");
-require("../config/mongo");
+require("../config/mongo"); // Kết nối MongoDB trước
 
 const mysqlModels = {};
 const mongodbModels = {};
 
 const mysqlPath = path.join(__dirname, "mysql");
+const mongodbPath = path.join(__dirname, "mongo");
+
+// ====== Load MySQL models ======
 fs.readdirSync(mysqlPath).forEach((file) => {
   if (!file.endsWith(".js") || file === "index.js") return;
 
@@ -21,13 +24,25 @@ fs.readdirSync(mysqlPath).forEach((file) => {
   }
 });
 
+// ====== Associate MySQL models sau khi load hết ======
 Object.values(mysqlModels).forEach((model) => {
-  if (typeof model.associate === "function") {
-    model.associate(mysqlModels);
+  if (model && typeof model.associate === "function") {
+    try {
+      model.associate(mysqlModels);
+      console.log(chalk.gray(`🔗 Associated MySQL model: ${model.name}`));
+    } catch (err) {
+      console.error(
+        chalk.red(`❌ Failed to associate MySQL model: ${model.name}\n${err}`)
+      );
+    }
+  } else {
+    console.log(
+      chalk.yellow(`⚠️ No associate function for model: ${model.name}`)
+    );
   }
 });
 
-const mongodbPath = path.join(__dirname, "mongo");
+// ====== Load MongoDB models ======
 fs.readdirSync(mongodbPath).forEach((file) => {
   if (!file.endsWith(".js") || file === "index.js") return;
 
@@ -43,6 +58,7 @@ fs.readdirSync(mongodbPath).forEach((file) => {
   }
 });
 
+// ====== Export tổng ======
 module.exports = {
   ...mysqlModels,
   ...mongodbModels,

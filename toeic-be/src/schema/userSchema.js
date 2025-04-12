@@ -2,74 +2,88 @@ const { gql } = require("apollo-server-express");
 
 const typeDefs = gql`
   scalar DateTime
+  scalar JSON
 
   enum UserStatus {
     ACTIVE
     LOCKED
     DELETED
+    PENDING
   }
-
-  type User {
-    id: ID!
-    name: String!
-    email: String!
-    role: Role!
-    avatar: String
-    exp: Int!
-    coin: Int!
-    status: UserStatus!
-    createdAt: DateTime!
-    updatedAt: DateTime!
+  enum Gender {
+    MALE
+    FEMALE
+    OTHER
   }
 
   type Role {
     id: ID!
     name: String!
-    users: [User]
+  }
+  type User {
+    id: ID!
+    username: String!
+    email: String!
+    fullName: String
+    avatar: String
+    gender: String
+    dob: String
+    status: UserStatus
+    role: Role
+    lastLogin: DateTime
+    exp: Int
+    level: Int
+    metadata: JSON
+  }
+
+  input UserInput {
+    fullName: String
+    avatarBase64: String
+    gender: String
+    dob: String
+    status: UserStatus
+  }
+
+  input UpdateRoleInput {
+    userId: ID!
+    newRoleId: ID!
+  }
+
+  input UpdateStatusInput {
+    userId: ID!
+    newStatus: UserStatus!
   }
 
   input RegisterInput {
-    name: String!
+    username: String!
     email: String!
     password: String!
-    roleId: ID!
-  }
-
-  input UpdateUserInput {
-    name: String
-    avatar: String
-    roleId: ID
   }
 
   type AuthPayload {
-    status: Boolean!
-    msg: String
-    token: String
-    user: User
+    token: String!
+    user: User!
   }
 
   type MessageResponse {
-    status: Boolean!
-    msg: String
+    success: Boolean!
+    message: String!
   }
 
-  extend type Query {
-    getUsers: [User!]!
-    getUserById(id: ID!): User
-    getUserRole(userId: ID!): Role
-    getRoles: [Role!]!
-    me: User
-  }
-
-  extend type Mutation {
+  type Mutation {
+    updateUser(userId: ID!, data: UserInput): User
+    updateUserAvatar(userId: ID!, base64Image: String): User
+    deleteUser(userId: ID!): Boolean
+    updateUserRole(data: UpdateRoleInput): User
+    updateUserStatus(data: UpdateStatusInput): User
     register(input: RegisterInput!): MessageResponse
     login(email: String!, password: String!): AuthPayload
-    updateUser(id: ID!, input: UpdateUserInput!): User
-    deleteUser(id: ID!): MessageResponse
     lockUser(id: ID!): MessageResponse
     unlockUser(id: ID!): MessageResponse
-    updateUserRole(userId: ID!, roleId: ID!): MessageResponse
-    updateAvatar(userId: ID!, base64Image: String!): User
+  }
+
+  type Query {
+    getUser(userId: ID!): User
   }
 `;
 

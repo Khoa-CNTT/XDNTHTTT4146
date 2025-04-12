@@ -1,5 +1,15 @@
 const cloudinary = require("cloudinary").v2;
-require("dotenv").config();
+const dotenv = require("dotenv");
+
+dotenv.config();
+
+if (
+  !process.env.CLOUDINARY_CLOUD_NAME ||
+  !process.env.CLOUDINARY_API_KEY ||
+  !process.env.CLOUDINARY_API_SECRET
+) {
+  console.warn("[Cloudinary] ❌ Missing environment variables.");
+}
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -7,5 +17,12 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
   secure: true,
 });
+
+if (process.env.NODE_ENV !== "production") {
+  console.log(
+    "[Cloudinary] ✅ Configured for",
+    process.env.CLOUDINARY_CLOUD_NAME
+  );
+}
 
 module.exports = cloudinary;
