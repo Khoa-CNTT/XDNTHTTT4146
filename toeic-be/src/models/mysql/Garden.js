@@ -6,8 +6,12 @@ class Garden extends Model {
     Garden.belongsTo(models.Course, {
       foreignKey: "courseId",
       allowNull: true,
+      as: "course",
     });
-    Garden.hasMany(models.Plant, { foreignKey: "gardenId" });
+    Garden.hasMany(models.GardenItem, {
+      foreignKey: "gardenId",
+      as: "items",
+    });
   }
 }
 

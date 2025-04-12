@@ -4,8 +4,8 @@ const sequelize = require("../config/mysql");
 class MockTest extends Model {
   static associate(models) {
     MockTest.belongsTo(models.Course, {
-      foreignKey: "courseId",
-      allowNull: true,
+      foreignKey: "courseId", // Khóa ngoại đến bảng Course
+      allowNull: true, // Có thể không có khóa ngoại
     });
   }
 }
@@ -38,4 +38,5 @@ MockTest.init(
     timestamps: false,
   }
 );
+
 module.exports = MockTest;

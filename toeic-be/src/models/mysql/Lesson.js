@@ -4,7 +4,7 @@ const sequelize = require("../config/mysql");
 class Lesson extends Model {
   static associate(models) {
     Lesson.belongsTo(models.Course, { foreignKey: "courseId" });
-    Lesson.hasMany(models.Question, { foreignKey: "questionId" });
+    Lesson.hasMany(models.Question, { foreignKey: "lessonId" });
   }
 }
 
@@ -25,7 +25,7 @@ Lesson.init(
       allowNull: true,
     },
     courseId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false,
     },
   },

@@ -1,7 +1,15 @@
 const { DataTypes, Model } = require("sequelize");
 const sequelize = require("../config/mysql");
 
-class Item extends Model {}
+class Item extends Model {
+  static associate(models) {
+    Item.belongsTo(models.Garden, { foreignKey: "gardenId", as: "garden" });
+    Item.belongsTo(models.ItemType, {
+      foreignKey: "itemTypeId",
+      as: "itemType",
+    });
+  }
+}
 Item.init(
   {
     id: {

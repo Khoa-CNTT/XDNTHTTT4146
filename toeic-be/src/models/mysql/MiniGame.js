@@ -7,9 +7,13 @@ class MiniGame extends Model {
       through: "MiniGameCourse",
       foreignKey: "miniGameId",
     });
+
+    MiniGame.hasMany(models.Floor, {
+      foreignKey: "miniGameId",
+      as: "floors",
+    });
   }
 }
-
 MiniGame.init(
   {
     id: {
