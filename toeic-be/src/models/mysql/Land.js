@@ -15,7 +15,6 @@ class Land extends Model {
       foreignKey: "gardenId",
       allowNull: true,
     });
-    Land.hasMany(models.Plant, { foreignKey: "landId" });
   }
 }
 

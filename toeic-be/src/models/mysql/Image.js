@@ -3,14 +3,13 @@ const sequelize = require("../config/mysql");
 
 class Image extends Model {
   static associate(models) {
-    // Liên kết với Item
     Image.belongsTo(models.Item, {
       foreignKey: "itemId",
       as: "item",
     });
 
     Image.hasMany(models.Land, {
-      foreignKey: "statusImageId", // liên kết với đất theo trạng thái
+      foreignKey: "statusImageId",
       as: "landsWithStatusImage",
     });
   }

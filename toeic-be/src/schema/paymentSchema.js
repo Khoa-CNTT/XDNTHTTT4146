@@ -14,8 +14,17 @@ module.exports = gql`
     createdAt: String!
   }
 
+  type PaymentResponse {
+    message: String!
+    payment: Payment
+  }
+
+  type Query {
+    getMyPayments(userId: ID!): [Payment!]!
+  }
+
   type Mutation {
-    topUp(amount: Float!, method: String!): Payment!
-    buyCourse(courseId: ID!, method: String = "COIN"): Payment!
+    topUp(amount: Float!, method: String = "VNPAY"): PaymentResponse!
+    buyCourse(courseId: ID!, method: String = "COIN"): PaymentResponse!
   }
 `;

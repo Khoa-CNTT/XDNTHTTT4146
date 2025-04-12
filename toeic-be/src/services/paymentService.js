@@ -40,7 +40,7 @@ class PaymentService {
   }
 
   // Mua khóa học
-  static async buyCourse(userId, courseId, method = "COIN") {
+  static async buyCourse(userId, courseId, method = "COIN", paymentInfo = {}) {
     const transaction = await sequelize.transaction();
 
     try {
@@ -53,7 +53,9 @@ class PaymentService {
       if (!user) throw new Error("Người dùng không tồn tại.");
 
       const price = parseFloat(course.price);
+      let paymentStatus = "SUCCESS";
 
+      // Xử lý theo phương thức thanh toán
       if (method === "COIN") {
         if (user.coin < price) {
           throw new Error("Không đủ coin để mua khóa học.");
@@ -64,43 +66,49 @@ class PaymentService {
           { coin: user.coin - price },
           { where: { id: userId }, transaction }
         );
-
-        // Tạo payment record
-        const payment = await Payment.create(
-          {
-            userId,
-            amount: price,
-            type: "BUY_COURSE",
-            status: "SUCCESS",
-            refId: courseId,
-            refModel: "Course",
-            method,
-          },
-          { transaction }
-        );
-
-        // Tạo hóa đơn
-        await Invoice.create(
-          {
-            invoiceCode: `INV-${uuidv4()}`,
-            userId,
-            courseId,
-            paymentId: payment.id,
-            price,
-            status: "PAID",
-          },
-          { transaction }
-        );
-
-        // Commit transaction
-        await transaction.commit();
-
-        return { message: "Đã mua khóa học thành công", payment };
+      } else if (method === "VNPAY" || method === "MOMO") {
+        paymentStatus = "PENDING"; // Đang chờ xác nhận từ cổng thanh toán
+      } else {
+        throw new Error("Phương thức thanh toán không hợp lệ.");
       }
 
-      throw new Error("Phương thức thanh toán không hợp lệ.");
+      // Tạo bản ghi payment
+      const payment = await Payment.create(
+        {
+          userId,
+          amount: price,
+          type: "BUY_COURSE",
+          status: paymentStatus,
+          refId: courseId,
+          refModel: "Course",
+          method,
+        },
+        { transaction }
+      );
+
+      // Tạo hóa đơn
+      await Invoice.create(
+        {
+          invoiceCode: `INV-${uuidv4()}`,
+          userId,
+          courseId,
+          paymentId: payment.id,
+          price,
+          status: paymentStatus === "SUCCESS" ? "PAID" : "UNPAID",
+        },
+        { transaction }
+      );
+
+      await transaction.commit();
+
+      return {
+        message:
+          paymentStatus === "SUCCESS"
+            ? "Đã mua khóa học thành công"
+            : "Đang chờ xác nhận thanh toán",
+        payment,
+      };
     } catch (error) {
-      // Rollback transaction nếu có lỗi
       await transaction.rollback();
       throw error;
     }

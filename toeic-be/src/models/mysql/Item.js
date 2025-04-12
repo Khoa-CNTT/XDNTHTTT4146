@@ -4,12 +4,14 @@ const sequelize = require("../config/mysql");
 class Item extends Model {
   static associate(models) {
     Item.belongsTo(models.Garden, { foreignKey: "gardenId", as: "garden" });
+
     Item.belongsTo(models.ItemType, {
       foreignKey: "itemTypeId",
       as: "itemType",
     });
   }
 }
+
 Item.init(
   {
     id: {
@@ -23,6 +25,14 @@ Item.init(
     },
     description: {
       type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    effectType: {
+      type: DataTypes.ENUM("XP", "TIME", "FERTILITY"), // Loại hiệu ứng của vật phẩm
+      allowNull: true,
+    },
+    effectValue: {
+      type: DataTypes.INTEGER,
       allowNull: true,
     },
     imageId: {
@@ -41,4 +51,5 @@ Item.init(
     timestamps: false,
   }
 );
+
 module.exports = Item;

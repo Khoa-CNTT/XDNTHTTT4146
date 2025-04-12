@@ -1,5 +1,4 @@
 //Kiểm tra quyền truy cập admin, user (teacher, student)
-
 module.exports = (requiredRoles = []) => {
   return (req, res, next) => {
     if (!req.isAuthenticated || !req.isAuthenticated()) {
