@@ -1,5 +1,6 @@
 require("dotenv").config();
 const path = require("path");
+const fs = require("fs");
 const { sequelize } = require("../config/mysql");
 const mongoose = require("mongoose");
 const Sequelize = require("sequelize");
@@ -65,31 +66,49 @@ const mysqlModelsOrder = [
   "Notification.js",
 ];
 
+// 1. Load Sequelize models theo thứ tự
 mysqlModelsOrder.forEach((file) => {
   const model = require(path.join(__dirname, "mysql", file));
   const modelName = model?.name || file.replace(".js", "");
   db.mysql[modelName] = model;
 });
 
-// Gọi associate sau khi đã load xong toàn bộ models
+// 2. Gọi associate() sau khi toàn bộ models đã được load
 Object.values(db.mysql).forEach((model) => {
   if (typeof model.associate === "function") {
     model.associate(db.mysql);
   }
 });
 
-// Đồng bộ Sequelize
+// 3. Sync từng bảng nếu chưa tồn tại
+const queryInterface = sequelize.getQueryInterface();
+
 (async () => {
   try {
-    await sequelize.sync({ alter: true }); // hoặc force: true để reset
-    console.log("✅ All MySQL tables synced successfully!");
+    for (const modelName of Object.keys(db.mysql)) {
+      const model = db.mysql[modelName];
+      const tableName = model.getTableName();
+
+      const exists = await queryInterface
+        .describeTable(tableName)
+        .then(() => true)
+        .catch(() => false);
+
+      if (!exists) {
+        await model.sync();
+        console.log(`✅ Created table: ${tableName}`);
+      } else {
+        console.log(`ℹ️ Skipped existing table: ${tableName}`);
+      }
+    }
+
+    console.log("🎉 All MySQL models checked and synced (if needed).");
   } catch (err) {
-    console.error("❌ Sync error:", err.message);
+    console.error("❌ Table sync error:", err.message);
   }
 })();
 
-// Load MongoDB models (cứ giữ nguyên)
-const fs = require("fs");
+// 4. Load MongoDB models
 const mongoPath = path.join(__dirname, "mongo");
 try {
   fs.readdirSync(mongoPath)
@@ -103,7 +122,7 @@ try {
   console.error("❌ Error loading MongoDB models:", error);
 }
 
-// Export everything
+// 5. Export
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 db.mongoose = mongoose;

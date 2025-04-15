@@ -3,7 +3,10 @@ const { sequelize } = require("../../config/mysql");
 
 class Answer extends Model {
   static associate(models) {
-    Answer.belongsTo(models.Question, { foreignKey: "questionId" });
+    Answer.belongsTo(models.Question, {
+      foreignKey: "questionId",
+      onDelete: "CASCADE",
+    });
   }
 }
 
@@ -45,6 +48,7 @@ Answer.init(
     modelName: "Answer",
     tableName: "answers",
     timestamps: false,
+    underscored: true,
   }
 );
 
