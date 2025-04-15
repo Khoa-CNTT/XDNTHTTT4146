@@ -1,6 +1,6 @@
 const { gql } = require("apollo-server-express");
 
-module.exports = gql`
+const typeDefs = gql`
   enum EffectType {
     XP
     TIME
@@ -34,3 +34,4 @@ module.exports = gql`
     message: String!
   }
 `;
+module.exports = { typeDefs };

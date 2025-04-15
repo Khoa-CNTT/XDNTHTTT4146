@@ -1,12 +1,9 @@
 const { DataTypes, Model } = require("sequelize");
-const sequelize = require("../config/mysql");
+const { sequelize } = require("../../config/mysql");
 
 class Answer extends Model {
   static associate(models) {
-    Answer.belongsTo(models.Question, {
-      foreignKey: "questionId",
-      allowNull: false,
-    });
+    Answer.belongsTo(models.Question, { foreignKey: "questionId" });
   }
 }
 
@@ -29,10 +26,6 @@ Answer.init(
     questionId: {
       type: DataTypes.UUID,
       allowNull: false,
-      references: {
-        model: "questions",
-        key: "id",
-      },
     },
     isCorrect: {
       type: DataTypes.BOOLEAN,

@@ -1,5 +1,5 @@
 const { DataTypes, Model } = require("sequelize");
-const sequelize = require("../config/mysql");
+const { sequelize } = require("../../config/mysql");
 
 class Payment extends Model {
   static associate(models) {
@@ -17,6 +17,10 @@ Payment.init(
     userId: {
       type: DataTypes.UUID,
       allowNull: false,
+      references: {
+        model: "users",
+        key: "id",
+      },
     },
     amount: {
       type: DataTypes.DECIMAL(10, 2),

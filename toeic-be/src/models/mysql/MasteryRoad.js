@@ -1,12 +1,28 @@
 const { DataTypes, Model } = require("sequelize");
-const sequelize = require("../config/mysql");
+const { sequelize } = require("../../config/mysql");
 
 class MasteryRoad extends Model {
   static associate(models) {
-    MasteryRoad.belongsTo(models.Course, { foreignKey: "courseId" });
-    MasteryRoad.belongsTo(models.Tower, { foreignKey: "towerId" });
-    MasteryRoad.belongsTo(models.Garden, { foreignKey: "gardenId" });
-    MasteryRoad.belongsTo(models.Progress, { foreignKey: "progressId" });
+    MasteryRoad.belongsTo(models.Course, {
+      foreignKey: "courseId",
+      as: "course",
+    });
+    MasteryRoad.belongsTo(models.Tower, {
+      foreignKey: "towerId",
+      as: "tower",
+    });
+    MasteryRoad.belongsTo(models.Garden, {
+      foreignKey: "gardenId",
+      as: "garden",
+    });
+    MasteryRoad.belongsTo(models.Progress, {
+      foreignKey: "progressId",
+      as: "progress",
+    });
+    MasteryRoad.hasMany(models.Lesson, {
+      foreignKey: "masteryRoadId",
+      as: "lessons",
+    });
   }
 }
 
@@ -51,6 +67,14 @@ MasteryRoad.init(
         key: "id",
       },
     },
+    progressId: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      references: {
+        model: "progresses",
+        key: "id",
+      },
+    },
     difficultyLevel: {
       type: DataTypes.ENUM("beginner", "intermediate", "advanced"),
       allowNull: false,
@@ -61,12 +85,34 @@ MasteryRoad.init(
       allowNull: false,
       defaultValue: "active",
     },
+    targetScore: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    startDate: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    endDate: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    isPersonalized: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: true,
+    },
+    totalXP: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
   },
   {
     sequelize,
     modelName: "MasteryRoad",
     tableName: "mastery_roads",
     timestamps: true,
+    underscored: true,
   }
 );
 

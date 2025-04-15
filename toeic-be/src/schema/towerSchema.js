@@ -1,6 +1,6 @@
 const { gql } = require("apollo-server-express");
 
-module.exports = gql`
+const typeDefs = gql`
   # Type Definitions cho Tower
   type Tower {
     id: ID!
@@ -31,3 +31,4 @@ module.exports = gql`
     ): Tower
   }
 `;
+module.exports = { typeDefs };

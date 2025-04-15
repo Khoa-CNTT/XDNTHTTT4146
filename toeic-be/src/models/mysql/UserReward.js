@@ -1,5 +1,5 @@
 const { DataTypes, Model } = require("sequelize");
-const sequelize = require("../config/mysql");
+const { sequelize } = require("../../config/mysql");
 
 class UserReward extends Model {
   static associate(models) {
@@ -40,4 +40,5 @@ UserReward.init(
     timestamps: false,
   }
 );
-Module.exports = UserReward;
+
+module.exports = UserReward;

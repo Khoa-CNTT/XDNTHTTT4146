@@ -1,5 +1,5 @@
 const { DataTypes, Model } = require("sequelize");
-const sequelize = require("../config/mysql");
+const { sequelize } = require("../../config/mysql");
 
 class Item extends Model {
   static associate(models) {
@@ -28,7 +28,7 @@ Item.init(
       allowNull: true,
     },
     effectType: {
-      type: DataTypes.ENUM("XP", "TIME", "FERTILITY"), // Loại hiệu ứng của vật phẩm
+      type: DataTypes.ENUM("XP", "TIME", "FERTILITY"),
       allowNull: true,
     },
     effectValue: {
@@ -38,6 +38,22 @@ Item.init(
     imageId: {
       type: DataTypes.UUID,
       allowNull: true,
+    },
+    gardenId: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      references: {
+        model: "gardens",
+        key: "id",
+      },
+    },
+    itemTypeId: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      references: {
+        model: "item_types",
+        key: "id",
+      },
     },
     status: {
       type: DataTypes.ENUM("ACTIVE", "LOCKED", "DELETED"),

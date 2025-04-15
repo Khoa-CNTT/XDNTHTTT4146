@@ -1,5 +1,5 @@
 const { DataTypes, Model } = require("sequelize");
-const sequelize = require("../config/mysql");
+const { sequelize } = require("../../config/mysql");
 
 class Floor extends Model {
   static associate(models) {
@@ -33,6 +33,7 @@ Floor.init(
     },
     miniGameId: {
       type: DataTypes.UUID,
+      allowNull: false,
       references: {
         model: "mini_games",
         key: "id",
@@ -44,6 +45,7 @@ Floor.init(
     },
     towerId: {
       type: DataTypes.UUID,
+      allowNull: false,
       references: {
         model: "towers",
         key: "id",

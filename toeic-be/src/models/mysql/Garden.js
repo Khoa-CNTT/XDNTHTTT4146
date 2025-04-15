@@ -1,5 +1,5 @@
 const { DataTypes, Model } = require("sequelize");
-const sequelize = require("../config/mysql");
+const { sequelize } = require("../../config/mysql");
 
 class Garden extends Model {
   static associate(models) {
@@ -32,7 +32,7 @@ Garden.init(
       allowNull: true,
     },
     courseId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: true,
     },
   },
@@ -43,3 +43,4 @@ Garden.init(
     timestamps: true,
   }
 );
+module.exports = Garden;

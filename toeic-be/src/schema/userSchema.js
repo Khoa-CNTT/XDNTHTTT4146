@@ -1,6 +1,6 @@
 const { gql } = require("apollo-server-express");
 
-module.exports = gql`
+const typeDefs = gql`
   enum UserStatus {
     ACTIVE
     INACTIVE
@@ -68,3 +68,4 @@ module.exports = gql`
     loginWithGoogle(idToken: String!): AuthPayload!
   }
 `;
+module.exports = { typeDefs };

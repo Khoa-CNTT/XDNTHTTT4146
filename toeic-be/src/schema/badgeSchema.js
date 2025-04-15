@@ -1,6 +1,7 @@
 const { gql } = require("apollo-server-express");
+const { model } = require("mongoose");
 
-module.exports = gql`
+const typeDefs = gql`
   type Badge {
     id: ID!
     name: String!
@@ -35,3 +36,4 @@ module.exports = gql`
     deleteBadge(id: ID!): Boolean
   }
 `;
+module.exports = { typeDefs };

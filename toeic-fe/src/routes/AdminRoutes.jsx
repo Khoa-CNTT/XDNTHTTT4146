@@ -4,6 +4,7 @@ import AdminDashboard from "../pages/admin/Dashboard";
 import UserManagement from "../pages/admin/UserManagement";
 import PrivateRoute from "./PrivateRoute";
 
+<<<<<<< HEAD
 const adminRoutes = [
   {
     path: "/admin/dashboard",
@@ -28,6 +29,31 @@ const AdminRoutes = ({ role }) => {
           }
         />
       ))}
+=======
+const AdminRoutes = ({ role }) => {
+  return (
+    <Routes>
+      <Route
+        path="/admin/dashboard"
+        element={
+          <PrivateRoute
+            element={<AdminDashboard />}
+            role={role}
+            requiredRole="admin"
+          />
+        }
+      />
+      <Route
+        path="/admin/users"
+        element={
+          <PrivateRoute
+            element={<UserManagement />}
+            role={role}
+            requiredRole="admin"
+          />
+        }
+      />
+>>>>>>> 3fd30cc8a5683af940d62d4b1b41ce5ccd11fc34
     </Routes>
   );
 };

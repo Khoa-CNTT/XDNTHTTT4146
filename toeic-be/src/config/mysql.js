@@ -1,6 +1,6 @@
 const { Sequelize } = require("sequelize");
-const mysql = require("./config").mysql;
 const { createConnection } = require("mysql2/promise");
+const { mysql } = require("./config");
 
 const createDatabaseIfNotExists = async () => {
   try {
@@ -13,10 +13,10 @@ const createDatabaseIfNotExists = async () => {
     await connection.query(
       `CREATE DATABASE IF NOT EXISTS \`${mysql.database}\`;`
     );
-    console.log(`Database '${mysql.database}' is ready!`);
+    console.log(`✅ Database '${mysql.database}' sẵn sàng!`);
     await connection.end();
   } catch (error) {
-    console.error("Error creating database:", error);
+    console.error("❌ Lỗi khi tạo database:", error.message);
     process.exit(1);
   }
 };
@@ -29,6 +29,9 @@ const sequelize = new Sequelize(
     host: mysql.host,
     dialect: mysql.dialect,
     logging: mysql.logging,
+    define: {
+      underscored: true,
+    },
   }
 );
 
@@ -36,16 +39,19 @@ const connectMySQL = async () => {
   try {
     await createDatabaseIfNotExists();
     await sequelize.authenticate();
-    console.log("MySQL connected successfully!");
+    console.log("✅ Kết nối MySQL thành công!");
 
     if (process.env.NODE_ENV !== "production") {
       await sequelize.sync({ alter: true });
-      console.log("All models synchronized successfully!");
+      console.log("✅ Đồng bộ models thành công!");
     }
   } catch (error) {
-    console.error("MySQL connection error:", error);
+    console.error("❌ Lỗi kết nối MySQL:", error.message);
     process.exit(1);
   }
 };
 
-module.exports = { sequelize, connectMySQL };
+module.exports = {
+  sequelize,
+  connectMySQL,
+};

@@ -1,10 +1,12 @@
-const { sequelize, DataTypes } = require("sequelize");
+const { DataTypes, Model } = require("sequelize");
+const { sequelize } = require("../../config/mysql");
 
-class Role extends sequelize.Model {
+class Role extends Model {
   static associate(models) {
     Role.hasMany(models.User, { foreignKey: "roleId" });
   }
 }
+
 Role.init(
   {
     id: {
@@ -14,9 +16,8 @@ Role.init(
       allowNull: false,
     },
     name: {
-      type: DataTypes.STRING,
+      type: DataTypes.ENUM("admin", "teacher", "student"),
       allowNull: false,
-      Enum: ["admin", "teacher", "student"],
     },
   },
   {
@@ -27,4 +28,4 @@ Role.init(
   }
 );
 
-module.exports = { Role };
+module.exports = Role;

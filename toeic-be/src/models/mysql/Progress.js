@@ -1,5 +1,5 @@
 const { DataTypes, Model } = require("sequelize");
-const sequelize = require("../config/mysql");
+const { sequelize } = require("../../config/mysql");
 
 class Progress extends Model {}
 
@@ -12,11 +12,11 @@ Progress.init(
       allowNull: false,
     },
     userId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false,
     },
     lessonId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false,
     },
     score: {
@@ -32,4 +32,4 @@ Progress.init(
   }
 );
 
-module.exports = { Progress };
+module.exports = Progress;

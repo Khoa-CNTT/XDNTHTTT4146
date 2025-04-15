@@ -1,4 +1,4 @@
-const { ItemService } = require("../services");
+const { ItemService } = require("../services/itemService");
 const { AuthenticationError } = require("apollo-server-express");
 
 const itemResolver = {

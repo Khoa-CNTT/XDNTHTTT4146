@@ -1,6 +1,6 @@
 const { gql } = require("apollo-server-express");
 
-module.exports = gql`
+const typeDefs = gql`
   type CourseUser {
     courseId: ID!
     userId: ID!
@@ -16,3 +16,4 @@ module.exports = gql`
     removeUserFromCourse(courseId: ID!, userId: ID!): Boolean
   }
 `;
+module.exports = { typeDefs };

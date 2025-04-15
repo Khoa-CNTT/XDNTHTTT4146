@@ -1,5 +1,5 @@
 const { DataTypes, Model } = require("sequelize");
-const sequelize = require("../config/mysql");
+const { sequelize } = require("../../config/mysql");
 
 class User extends Model {
   static associate(models) {
@@ -9,6 +9,7 @@ class User extends Model {
       otherKey: "badgeId",
     });
     User.belongsTo(models.Role, { foreignKey: "roleId" });
+    User.hasMany(models.Notification, { foreignKey: "userId" });
   }
 }
 

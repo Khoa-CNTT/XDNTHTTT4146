@@ -1,4 +1,4 @@
-const MockService = require("../services/mock.service");
+const MockService = require("../services/mockTestService");
 
 const mockResolvers = {
   Query: {

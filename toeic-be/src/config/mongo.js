@@ -3,20 +3,20 @@ const { mongo } = require("./config");
 
 const connectMongoDB = async () => {
   try {
-    await mongoose.connect(mongo.uri, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    await mongoose.connect(mongo.uri);
 
-    // Kiểm tra nếu DB trống thì có thể seed dữ liệu mẫu
     const collections = await mongoose.connection.db
       .listCollections()
       .toArray();
     if (collections.length === 0) {
-      console.log("Database is empty, consider seeding initial data.");
+      console.log(
+        "MongoDB connected. Database is empty, you may want to seed initial data."
+      );
+    } else {
+      console.log("MongoDB connected successfully!");
     }
   } catch (error) {
-    console.error("MongoDB connection error:", error);
+    console.error("MongoDB connection error:", error.message);
     process.exit(1);
   }
 };

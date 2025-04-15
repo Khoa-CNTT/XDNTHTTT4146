@@ -1,6 +1,6 @@
 const { gql } = require("apollo-server-express");
 
-module.exports = gql`
+const typeDefs = gql`
   type Audio {
     id: ID!
     url: String!
@@ -18,3 +18,4 @@ module.exports = gql`
     getAllAudios: [Audio!]!
   }
 `;
+module.exports = { typeDefs };

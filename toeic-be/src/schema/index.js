@@ -7,11 +7,11 @@ const schemas = [];
 fs.readdirSync(__dirname).forEach((file) => {
   if (file === "index.js" || !file.endsWith("Schema.js")) return;
 
-  const schemaModule = require(path.join(__dirname, file));
+  const schema = require(path.join(__dirname, file));
 
-  Object.values(schemaModule).forEach((schema) => {
+  if (schema?.kind === "Document") {
     schemas.push(schema);
-  });
+  }
 });
 
 const typeDefs = mergeTypeDefs(schemas);

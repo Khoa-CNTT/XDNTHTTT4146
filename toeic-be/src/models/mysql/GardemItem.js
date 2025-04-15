@@ -1,5 +1,5 @@
 const { DataTypes, Model } = require("sequelize");
-const sequelize = require("../config/mysql");
+const { sequelize } = require("../../config/mysql");
 
 class GardenItem extends Model {
   static associate(models) {
@@ -28,10 +28,18 @@ GardenItem.init(
     gardenId: {
       type: DataTypes.UUID,
       allowNull: false,
+      references: {
+        model: "gardens",
+        key: "id",
+      },
     },
     itemId: {
       type: DataTypes.UUID,
       allowNull: false,
+      references: {
+        model: "items",
+        key: "id",
+      },
     },
     position: {
       type: DataTypes.STRING,

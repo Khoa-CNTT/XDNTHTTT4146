@@ -1,6 +1,6 @@
 const { gql } = require("apollo-server-express");
 
-module.exports = gql`
+const typeDefs = gql`
   type Question {
     id: ID!
     question: String!
@@ -48,3 +48,4 @@ module.exports = gql`
     deleteQuestion(id: ID!): Boolean
   }
 `;
+module.exports = { typeDefs };

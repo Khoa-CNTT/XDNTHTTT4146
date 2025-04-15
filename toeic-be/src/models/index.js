@@ -1,68 +1,111 @@
-const fs = require("fs");
+require("dotenv").config();
 const path = require("path");
-const chalk = require("chalk");
 const { sequelize } = require("../config/mysql");
-require("../config/mongo"); // Kết nối MongoDB trước
+const mongoose = require("mongoose");
+const Sequelize = require("sequelize");
+require("../config/passport-config");
 
-const mysqlModels = {};
-const mongodbModels = {};
-
-const mysqlPath = path.join(__dirname, "mysql");
-const mongodbPath = path.join(__dirname, "mongo");
-
-// ====== Load MySQL models ======
-fs.readdirSync(mysqlPath).forEach((file) => {
-  if (!file.endsWith(".js") || file === "index.js") return;
-
-  const fullPath = path.join(mysqlPath, file);
-  try {
-    const model = require(fullPath);
-    mysqlModels[model.name] = model;
-    console.log(chalk.green(`✅ MySQL model loaded: ${model.name}`));
-  } catch (err) {
-    console.error(chalk.red(`❌ Failed to load MySQL model: ${file}\n${err}`));
-  }
-});
-
-// ====== Associate MySQL models sau khi load hết ======
-Object.values(mysqlModels).forEach((model) => {
-  if (model && typeof model.associate === "function") {
-    try {
-      model.associate(mysqlModels);
-      console.log(chalk.gray(`🔗 Associated MySQL model: ${model.name}`));
-    } catch (err) {
-      console.error(
-        chalk.red(`❌ Failed to associate MySQL model: ${model.name}\n${err}`)
-      );
-    }
-  } else {
-    console.log(
-      chalk.yellow(`⚠️ No associate function for model: ${model.name}`)
-    );
-  }
-});
-
-// ====== Load MongoDB models ======
-fs.readdirSync(mongodbPath).forEach((file) => {
-  if (!file.endsWith(".js") || file === "index.js") return;
-
-  const fullPath = path.join(mongodbPath, file);
-  try {
-    const model = require(fullPath);
-    mongodbModels[model.modelName] = model;
-    console.log(chalk.cyan(`✅ MongoDB model loaded: ${model.modelName}`));
-  } catch (err) {
-    console.error(
-      chalk.red(`❌ Failed to load MongoDB model: ${file}\n${err}`)
-    );
-  }
-});
-
-// ====== Export tổng ======
-module.exports = {
-  ...mysqlModels,
-  ...mongodbModels,
-  mysqlModels,
-  mongodbModels,
-  sequelize,
+const db = {
+  mysql: {},
+  mongo: {},
 };
+
+const mysqlModelsOrder = [
+  // Các bảng cha/phụ thuộc sớm
+  "Role.js",
+  "Badge.js",
+  "ItemType.js",
+
+  // Entity core
+  "User.js",
+  "UserBadge.js",
+  "UserItem.js",
+  "UserReward.js",
+
+  // Học tập
+  "Course.js",
+  "CourseUser.js",
+  "Lesson.js",
+  "Vocabulary.js",
+  "WordMeaning.js",
+  "Question.js",
+  "Answer.js",
+  "MiniTest.js",
+  "TestResult.js",
+  "MockTest.js",
+  "MockResult.js",
+  "MiniGame.js",
+  "MiniGameCourse.js",
+
+  // Hành trình
+  "MasteryRoad.js",
+  "Progress.js",
+
+  // Nông trại
+  "Garden.js",
+  "Land.js",
+  "LandItem.js",
+  "GardenItem.js",
+  "Floor.js",
+
+  // Tower
+  "Tower.js",
+
+  // Tài nguyên
+  "Item.js",
+  "Image.js",
+  "Audio.js",
+  "Reward.js",
+
+  // Giao dịch
+  "Payment.js",
+  "Transaction.js",
+  "Invoice.js",
+
+  "Notification.js",
+];
+
+mysqlModelsOrder.forEach((file) => {
+  const model = require(path.join(__dirname, "mysql", file));
+  const modelName = model?.name || file.replace(".js", "");
+  db.mysql[modelName] = model;
+});
+
+// Gọi associate sau khi đã load xong toàn bộ models
+Object.values(db.mysql).forEach((model) => {
+  if (typeof model.associate === "function") {
+    model.associate(db.mysql);
+  }
+});
+
+// Đồng bộ Sequelize
+(async () => {
+  try {
+    await sequelize.sync({ alter: true }); // hoặc force: true để reset
+    console.log("✅ All MySQL tables synced successfully!");
+  } catch (err) {
+    console.error("❌ Sync error:", err.message);
+  }
+})();
+
+// Load MongoDB models (cứ giữ nguyên)
+const fs = require("fs");
+const mongoPath = path.join(__dirname, "mongo");
+try {
+  fs.readdirSync(mongoPath)
+    .filter((file) => file.endsWith(".js"))
+    .forEach((file) => {
+      const model = require(path.join(mongoPath, file));
+      const modelName = model?.modelName || file.replace(".js", "");
+      db.mongo[modelName] = model;
+    });
+} catch (error) {
+  console.error("❌ Error loading MongoDB models:", error);
+}
+
+// Export everything
+db.sequelize = sequelize;
+db.Sequelize = Sequelize;
+db.mongoose = mongoose;
+
+module.exports = db;

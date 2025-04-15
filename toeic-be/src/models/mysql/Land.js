@@ -1,5 +1,5 @@
 const { DataTypes, Model } = require("sequelize");
-const sequelize = require("../config/mysql");
+const { sequelize } = require("../../config/mysql");
 
 class Land extends Model {
   static associate(models) {
@@ -13,7 +13,7 @@ class Land extends Model {
     });
     Land.belongsTo(models.Garden, {
       foreignKey: "gardenId",
-      allowNull: true,
+      as: "garden",
     });
   }
 }
@@ -33,17 +33,29 @@ Land.init(
     imageId: {
       type: DataTypes.UUID,
       allowNull: true,
+      references: {
+        model: "images",
+        key: "id",
+      },
     },
     statusImageId: {
       type: DataTypes.UUID,
-      allowNull: true, // Sẽ liên kết với ảnh tương ứng với trạng thái của đất
-    },
-    description: {
-      type: DataTypes.TEXT,
       allowNull: true,
+      references: {
+        model: "images",
+        key: "id",
+      },
     },
     gardenId: {
       type: DataTypes.UUID,
+      allowNull: true,
+      references: {
+        model: "gardens",
+        key: "id",
+      },
+    },
+    description: {
+      type: DataTypes.TEXT,
       allowNull: true,
     },
     status: {
@@ -51,7 +63,7 @@ Land.init(
       defaultValue: "FERTILE",
     },
     fertility: {
-      type: DataTypes.INTEGER, // Biểu thị độ màu mỡ của đất (0 - 100 %)
+      type: DataTypes.INTEGER,
       defaultValue: 50,
       allowNull: false,
       validate: {
@@ -71,14 +83,14 @@ Land.init(
     },
     expBonus: {
       type: DataTypes.INTEGER,
-      defaultValue: 0, // Thêm điểm thưởng nếu user học tốt
+      defaultValue: 0,
     },
     lastPlantedAt: {
       type: DataTypes.DATE,
-      allowNull: true, // Dùng để tính thời gian không tương tác
+      allowNull: true,
     },
     price: {
-      type: DataTypes.INTEGER, // Giá của đất (tính bằng coin)
+      type: DataTypes.INTEGER,
       defaultValue: 0,
       allowNull: false,
     },

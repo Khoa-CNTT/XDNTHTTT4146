@@ -20,6 +20,11 @@ const Home = () => {
           <button className="cta-button text-white">Bắt đầu ngay</button>
         </Link>
       </main>
+<<<<<<< HEAD
+=======
+
+      <Footer />
+>>>>>>> 3fd30cc8a5683af940d62d4b1b41ce5ccd11fc34
     </div>
   );
 };

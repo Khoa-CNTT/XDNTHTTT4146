@@ -1,5 +1,5 @@
 const { DataTypes, Model } = require("sequelize");
-const sequelize = require("../config/mysql");
+const { sequelize } = require("../../config/mysql");
 const Vocabulary = require("./Vocabulary");
 
 class WordMeaning extends Model {}

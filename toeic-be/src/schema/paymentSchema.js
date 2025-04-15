@@ -1,6 +1,6 @@
 const { gql } = require("apollo-server-express");
 
-module.exports = gql`
+const typeDefs = gql`
   type Payment {
     id: ID!
     userId: ID!
@@ -28,3 +28,4 @@ module.exports = gql`
     buyCourse(courseId: ID!, method: String = "COIN"): PaymentResponse!
   }
 `;
+module.exports = { typeDefs };

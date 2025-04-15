@@ -22,4 +22,18 @@ module.exports = {
     url: process.env.CLOUDINARY_URL,
   },
   frontendUrl: process.env.FRONTEND_URL,
+  session: {
+    secret: process.env.SESSION_SECRET,
+    lifetime: process.env.SESSION_LIFETIME,
+  },
+  google: {
+    clientId: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackUrl: process.env.GOOGLE_CALLBACK_URL,
+  },
+  mail: {
+    user: process.env.MAIL_USER,
+    pass: process.env.MAIL_PASS,
+  },
+  port: process.env.PORT || 4000,
 };

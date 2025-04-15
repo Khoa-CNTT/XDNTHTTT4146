@@ -1,6 +1,6 @@
 const { gql } = require("apollo-server-express");
 
-module.exports = gql`
+const typeDefs = gql`
   # Type Definitions cho MiniGame
   type MiniGame {
     id: ID!
@@ -21,3 +21,4 @@ module.exports = gql`
     deleteMiniGame(id: ID!): Boolean
   }
 `;
+module.exports = { typeDefs };

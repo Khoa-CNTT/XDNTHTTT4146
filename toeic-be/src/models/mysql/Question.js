@@ -1,8 +1,10 @@
+// src/models/mysql/Question.js
 const { DataTypes, Model } = require("sequelize");
-const sequelize = require("../config/mysql");
+const { sequelize } = require("../../config/mysql");
 
 class Question extends Model {
   static associate(models) {
+    Question.hasMany(models.Answer, { foreignKey: "questionId" });
     Question.belongsTo(models.Lesson, { foreignKey: "lessonId" });
   }
 }
@@ -24,8 +26,12 @@ Question.init(
       allowNull: false,
     },
     lessonId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false,
+      references: {
+        model: "lessons",
+        key: "id",
+      },
     },
     type: {
       type: DataTypes.STRING(255),
@@ -64,4 +70,4 @@ Question.init(
   }
 );
 
-module.exports = { Question };
+module.exports = Question;

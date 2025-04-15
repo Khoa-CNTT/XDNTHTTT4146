@@ -1,5 +1,5 @@
 const { DataTypes, Model } = require("sequelize");
-const sequelize = require("../config/mysql");
+const { sequelize } = require("../../config/mysql");
 
 class Audio extends Model {}
 
@@ -23,6 +23,4 @@ Audio.init(
   }
 );
 
-module.exports = {
-  Audio,
-};
+module.exports = Audio;

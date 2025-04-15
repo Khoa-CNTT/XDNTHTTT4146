@@ -1,6 +1,6 @@
 const { gql } = require("apollo-server-express");
 
-module.exports = gql`
+const typeDefs = gql`
   type LandItem {
     id: ID!
     gardenItem: GardenItem
@@ -19,3 +19,4 @@ module.exports = gql`
     createLandItem(gardenItemId: ID!, landId: ID!): LandItem
   }
 `;
+module.exports = { typeDefs };

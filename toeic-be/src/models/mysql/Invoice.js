@@ -1,5 +1,5 @@
 const { DataTypes, Model } = require("sequelize");
-const sequelize = require("../config/mysql");
+const { sequelize } = require("../../config/mysql");
 
 class Invoice extends Model {
   static associate(models) {
@@ -27,15 +27,26 @@ Invoice.init(
     userId: {
       type: DataTypes.UUID,
       allowNull: false,
+      references: {
+        model: "users",
+        key: "id",
+      },
     },
     courseId: {
       type: DataTypes.UUID,
       allowNull: false,
+      references: {
+        model: "courses",
+        key: "id",
+      },
     },
     paymentId: {
       type: DataTypes.UUID,
       allowNull: true,
-      comment: "Tham chiếu đến giao dịch thanh toán nếu có",
+      references: {
+        model: "payments",
+        key: "id",
+      },
     },
     price: {
       type: DataTypes.DECIMAL(10, 2),

@@ -1,6 +1,6 @@
 const { gql } = require("apollo-server-express");
 
-module.exports = gql`
+const typeDefs = gql`
   type Answer {
     id: ID!
     label: String!
@@ -11,12 +11,10 @@ module.exports = gql`
     question: Question
   }
 
-  # Queries cho Answer
   type Query {
     getAnswer(id: ID!): Answer
   }
 
-  # Mutations cho Answer
   type Mutation {
     createAnswer(
       label: String!
@@ -28,3 +26,5 @@ module.exports = gql`
     ): Answer
   }
 `;
+
+module.exports = { typeDefs };

@@ -1,17 +1,17 @@
 const { DataTypes, Model } = require("sequelize");
-const sequelize = require("../config/mysql");
-const Lesson = require("./Lesson");
-const User = require("./User");
-const CourseUser = require("./CourseUser");
+const { sequelize } = require("../../config/mysql");
 
 class Course extends Model {
   static associate(models) {
     Course.hasMany(models.Lesson, { foreignKey: "courseId" });
-
     Course.belongsToMany(models.User, {
-      through: models.CourseUser,
+      through: "CourseUser",
       foreignKey: "courseId",
       otherKey: "userId",
+    });
+    Course.hasMany(models.Garden, {
+      foreignKey: "courseId",
+      as: "gardens",
     });
   }
 }

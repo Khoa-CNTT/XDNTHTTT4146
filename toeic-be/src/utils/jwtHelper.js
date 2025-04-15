@@ -1,37 +1,28 @@
-require("dotenv").config();
 const jwt = require("jsonwebtoken");
-
 const SECRET_KEY = process.env.JWT_SECRET;
 
 if (!SECRET_KEY) {
-  console.error("ERROR: JWT_SECRET is not defined! Check your .env file.");
-  process.exit(1);
+  throw new Error("JWT_SECRET is missing in .env");
 }
 
 /**
- * Giải mã và xác thực token JWT
- * @param {string} token
- * @returns {object|null}
+ * Tạo JWT token từ thông tin user
+ * @param {object} user
+ * @returns {string} JWT token
  */
-const getUserFromToken = (token) => {
-  if (!token) {
-    console.warn("No token provided");
-    return null;
-  }
+const generateJwtToken = (user) => {
+  const payload = {
+    id: user.id,
+    email: user.email,
+    name: `${user.firstName} ${user.lastName}`.trim(),
+  };
 
-  try {
-    const decoded = jwt.verify(token, SECRET_KEY);
-    return decoded;
-  } catch (err) {
-    if (err.name === "JsonWebTokenError") {
-      console.warn("Invalid token:", err.message);
-    } else if (err.name === "TokenExpiredError") {
-      console.warn("Token has expired:", err.message);
-    } else {
-      console.warn("Error verifying token:", err.message);
-    }
-    return null;
-  }
+  const options = {
+    expiresIn: "7d",
+    issuer: "toeic-platform",
+  };
+
+  return jwt.sign(payload, SECRET_KEY, options);
 };
 
-module.exports = { getUserFromToken };
+module.exports = { generateJwtToken };

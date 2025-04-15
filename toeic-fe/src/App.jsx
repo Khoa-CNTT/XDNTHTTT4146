@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
+<<<<<<< HEAD
 import StudentPage from "./pages/StudentPage";
 import TeacherPage from "./pages/TeacherPage";
 import LoginPage from "./pages/LoginPage";
@@ -38,6 +39,25 @@ const Layout = ({ children }) => {
       {!hideNavbar && <Navbar />}
       {children}
       {!hideNavbar && <Footer />}
+=======
+import StudentDashboard from "./pages/StudentPage";
+import TeacherDashboard from "./pages/TeacherPage";
+import ManageCourses from "./pages/ManageCourses";
+import MyCourses from "./pages/MyCourses";
+import LoginPage from "./pages/LoginPage";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import "./index.css";
+
+const Layout = ({ children }) => {
+  const location = useLocation();
+  const hideNavbar = location.pathname === "/login";
+
+  return (
+    <>
+      {!hideNavbar && <Navbar /> && <Footer />}
+      {children}
+>>>>>>> 3fd30cc8a5683af940d62d4b1b41ce5ccd11fc34
     </>
   );
 };
@@ -47,6 +67,7 @@ const App = () => {
     <Router>
       <Layout>
         <Routes>
+<<<<<<< HEAD
           {/* Public routes */}
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<LoginPage />} />
@@ -106,6 +127,15 @@ const App = () => {
           />
 
           {/* Fallback */}
+=======
+          <Route path="/" element={<Home />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/student" element={<StudentDashboard />} />
+          <Route path="/teacher" element={<TeacherDashboard />} />
+          <Route path="/teacher/manage-courses" element={<ManageCourses />} />
+          <Route path="/student/courses" element={<MyCourses />} />
+>>>>>>> 3fd30cc8a5683af940d62d4b1b41ce5ccd11fc34
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </Layout>

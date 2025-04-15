@@ -1,6 +1,4 @@
 const userService = require("../services/userService");
-const authService = require("../services/authService"); // Đảm bảo đã import authService để sử dụng logic đăng nhập bằng Google
-
 const userResolver = {
   Query: {
     getUser: (_, { id }) => {

@@ -1,6 +1,6 @@
 const { gql } = require("apollo-server-express");
 
-module.exports = gql`
+const typeDefs = gql`
   type MockTest {
     id: ID!
     name: String!
@@ -36,3 +36,4 @@ module.exports = gql`
     ): MockResult
   }
 `;
+module.exports = { typeDefs };

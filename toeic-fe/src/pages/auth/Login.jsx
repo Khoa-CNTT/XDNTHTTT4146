@@ -4,7 +4,10 @@ import SocialLogin from "../../components/student/SocialLogin";
 import InputField from "../../components/student/InputField";
 import Button from "../../components/student/Button";
 import { loginUser } from "../../api/userApi";
+<<<<<<< HEAD
 import { Link } from "react-router-dom";
+=======
+>>>>>>> 3fd30cc8a5683af940d62d4b1b41ce5ccd11fc34
 
 const Login = ({ onLogin }) => {
   const [formData, setFormData] = useState({
@@ -14,12 +17,22 @@ const Login = ({ onLogin }) => {
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+<<<<<<< HEAD
   const navigate = useNavigate();
 
+=======
+  const navigate = useNavigate(); // Hook điều hướng
+
+  // Xử lý thay đổi input
+>>>>>>> 3fd30cc8a5683af940d62d4b1b41ce5ccd11fc34
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+<<<<<<< HEAD
+=======
+  // Gọi API đăng nhập
+>>>>>>> 3fd30cc8a5683af940d62d4b1b41ce5ccd11fc34
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -27,7 +40,11 @@ const Login = ({ onLogin }) => {
 
     try {
       const response = await loginUser(formData);
+<<<<<<< HEAD
       const { token, user } = response.data.login;
+=======
+      const { token, user } = response.data.login; // Giả sử API trả về user info
+>>>>>>> 3fd30cc8a5683af940d62d4b1b41ce5ccd11fc34
 
       console.log("Login success:", user);
       alert("Đăng nhập thành công!");
@@ -69,12 +86,16 @@ const Login = ({ onLogin }) => {
           value={formData.password}
           onChange={handleChange}
         />
+<<<<<<< HEAD
         <Link
           to="/forgot-password"
           className="text-sm text-blue-500 hover:underline"
         >
           Forget Your Password?
         </Link>
+=======
+        <a href="./ForgotPassword">Forget Your Password?</a>
+>>>>>>> 3fd30cc8a5683af940d62d4b1b41ce5ccd11fc34
         {error && <p style={{ color: "red" }}>{error}</p>}
         <Button
           text={loading ? "Signing in..." : "Sign In"}

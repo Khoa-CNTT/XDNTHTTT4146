@@ -1,5 +1,5 @@
 const { DataTypes, Model } = require("sequelize");
-const sequelize = require("../config/mysql");
+const { sequelize } = require("../../config/mysql");
 
 class Image extends Model {
   static associate(models) {
@@ -11,6 +11,10 @@ class Image extends Model {
     Image.hasMany(models.Land, {
       foreignKey: "statusImageId",
       as: "landsWithStatusImage",
+    });
+    Image.hasMany(models.Land, {
+      foreignKey: "imageId",
+      as: "landsWithImage",
     });
   }
 }
@@ -26,6 +30,14 @@ Image.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    itemId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: "items",
+        key: "id",
+      },
+    },
   },
   {
     sequelize,
@@ -36,4 +48,4 @@ Image.init(
   }
 );
 
-module.exports = { Image };
+module.exports = Image;

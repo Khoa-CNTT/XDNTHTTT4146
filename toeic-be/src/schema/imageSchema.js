@@ -1,6 +1,6 @@
 const { gql } = require("apollo-server-express");
 
-module.exports = gql`
+const typeDefs = gql`
   type Image {
     id: ID!
     url: String!
@@ -14,3 +14,4 @@ module.exports = gql`
     getImage(id: ID!): Image
   }
 `;
+module.exports = { typeDefs };
