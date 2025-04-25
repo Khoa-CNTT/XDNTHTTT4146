@@ -4,7 +4,7 @@ const cors = require("cors");
 const { typeDefs } = require("../schema/index");
 const { resolvers } = require("../resolvers/index");
 const { getUserFromToken } = require("../utils/jwtHelper");
-const errorHandler = require("../middlewares/errorHandler");
+const errorHandler = require("../utils/errors");
 
 const createApolloServer = async () => {
   try {

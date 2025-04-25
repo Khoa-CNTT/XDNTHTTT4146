@@ -3,7 +3,6 @@ require("./config/passport-config");
 
 const express = require("express");
 const passport = require("passport");
-const initDatabase = require("./config/initDatabase");
 const { createApolloServer } = require("./config/graphql");
 const configureMiddleware = require("./middlewares/expressMiddleware");
 const errorHandler = require("./middlewares/errorHandler");

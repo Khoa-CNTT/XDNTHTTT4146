@@ -11,7 +11,7 @@ const userResolver = {
 
   Mutation: {
     createUser: (_, { input }) => {
-      return userService.register(input); // Sử dụng register từ userService để tạo người dùng mới
+      return userService.register(input);
     },
 
     updateUser: (_, { id, input }) => {
