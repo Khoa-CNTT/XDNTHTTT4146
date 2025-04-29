@@ -27,9 +27,10 @@ UserReward.init(
     quantity: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      defaultValue: 1,
     },
     status: {
-      type: DataTypes.ENUM("ACTIVE", "LOCKED", "DELETED"),
+      type: DataTypes.ENUM("ACTIVE", "LOCKED", "DELETED", "EXPIRED"),
       defaultValue: "ACTIVE",
     },
   },
@@ -37,7 +38,13 @@ UserReward.init(
     sequelize,
     modelName: "UserReward",
     tableName: "user_rewards",
-    timestamps: false,
+    timestamps: true,
+    indexes: [
+      {
+        unique: true,
+        fields: ["userId", "rewardId"],
+      },
+    ],
   }
 );
 

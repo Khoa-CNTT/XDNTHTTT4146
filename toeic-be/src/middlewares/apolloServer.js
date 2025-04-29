@@ -1,15 +1,19 @@
-const { verifyToken } = require("./utils/jwt");
-const { User, Role } = require("./models");
+const { ApolloServer } = require("apollo-server-express");
+const express = require("express");
+const app = express();
 
 const server = new ApolloServer({
   typeDefs,
   resolvers,
   context: async ({ req }) => {
     const token = req.headers.authorization || "";
-    if (!token) return {};
+    const tokenString = token.startsWith("Bearer ")
+      ? token.split(" ")[1]
+      : token;
+    if (!tokenString) return {};
 
     try {
-      const decoded = verifyToken(token);
+      const decoded = verifyToken(tokenString);
       const user = await User.findByPk(decoded.id, {
         include: [{ model: Role, as: "role" }],
       });
@@ -24,7 +28,17 @@ const server = new ApolloServer({
         },
       };
     } catch (err) {
+      console.error("Error verifying token:", err);
       return {};
     }
   },
+});
+
+server.applyMiddleware({ app });
+
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, () => {
+  console.log(
+    `Server running at http://localhost:${PORT}${server.graphqlPath}`
+  );
 });

@@ -45,7 +45,7 @@ class AnswerService {
   static async deleteAnswer(id) {
     const answer = await Answer.findByPk(id);
     if (!answer) throw new Error("Answer not found");
-    await answer.update({ isDeleted: true });
+    await answer.destroy();
     return true;
   }
 }

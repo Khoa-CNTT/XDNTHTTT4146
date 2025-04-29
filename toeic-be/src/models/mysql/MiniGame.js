@@ -4,10 +4,10 @@ const { sequelize } = require("../../config/mysql");
 class MiniGame extends Model {
   static associate(models) {
     MiniGame.belongsToMany(models.Course, {
-      through: "MiniGameCourse",
+      through: models.MiniGameCourse,
       foreignKey: "miniGameId",
+      otherKey: "courseId",
     });
-
     MiniGame.hasMany(models.Floor, {
       foreignKey: "miniGameId",
       as: "floors",

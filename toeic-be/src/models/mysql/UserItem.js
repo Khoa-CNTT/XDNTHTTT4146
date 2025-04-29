@@ -33,6 +33,7 @@ UserItem.init(
     quantity: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      defaultValue: 1,
     },
   },
   {
@@ -40,6 +41,13 @@ UserItem.init(
     modelName: "UserItem",
     tableName: "user_items",
     timestamps: true,
+    indexes: [
+      {
+        unique: true,
+        fields: ["userId", "itemId"],
+      },
+    ],
   }
 );
+
 module.exports = UserItem;

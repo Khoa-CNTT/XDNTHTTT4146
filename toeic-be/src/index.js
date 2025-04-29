@@ -3,17 +3,20 @@ require("./config/passport-config");
 
 const express = require("express");
 const passport = require("passport");
+const http = require("http");
+const socketIo = require("socket.io");
 const { createApolloServer } = require("./config/graphql");
+const initDatabase = require("./config/initDatabase");
 const configureMiddleware = require("./middlewares/expressMiddleware");
 const errorHandler = require("./middlewares/errorHandler");
 const imageUploadRouter = require("./routes/upload-image");
 
 const app = express();
+const server = http.createServer(app);
+const io = socketIo(server);
 
-// Cấu hình middleware tách riêng
 configureMiddleware(app);
 
-// Google Auth routes
 app.get(
   "/auth/google",
   passport.authenticate("google", {
@@ -30,23 +33,21 @@ app.get(
   }
 );
 
-// API routes
 app.use("/api", imageUploadRouter);
 
-// Middleware xử lý lỗi
 app.use(errorHandler);
 
-// Khởi động server
 const startServer = async () => {
   try {
     await initDatabase();
 
-    const { app: apolloApp, server } = await createApolloServer(app);
+    const { server: apolloServer } = await createApolloServer(app, io);
 
     const PORT = process.env.PORT || 4000;
-    apolloApp.listen(PORT, () => {
+    server.listen(PORT, () => {
+      console.log(`🚀 Server running at http://localhost:${PORT}`);
       console.log(
-        `🚀 Server ready at http://localhost:${PORT}${server.graphqlPath}`
+        `🚀 GraphQL Playground available at http://localhost:${PORT}${apolloServer.graphqlPath}`
       );
     });
   } catch (error) {

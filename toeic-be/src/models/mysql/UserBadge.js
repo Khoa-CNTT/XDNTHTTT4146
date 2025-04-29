@@ -1,7 +1,12 @@
 const { DataTypes, Model } = require("sequelize");
 const { sequelize } = require("../../config/mysql");
 
-class UserBadge extends Model {}
+class UserBadge extends Model {
+  static associate(models) {
+    UserBadge.belongsTo(models.User, { foreignKey: "userId" });
+    UserBadge.belongsTo(models.Badge, { foreignKey: "badgeId" });
+  }
+}
 
 UserBadge.init(
   {
@@ -29,6 +34,12 @@ UserBadge.init(
     modelName: "UserBadge",
     tableName: "user_badges",
     timestamps: false,
+    indexes: [
+      {
+        unique: true,
+        fields: ["userId", "badgeId"],
+      },
+    ],
   }
 );
 

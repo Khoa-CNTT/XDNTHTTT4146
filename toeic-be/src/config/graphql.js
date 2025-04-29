@@ -1,25 +1,10 @@
 const { ApolloServer } = require("apollo-server-express");
-const express = require("express");
-const cors = require("cors");
 const { typeDefs } = require("../schema/index");
 const { resolvers } = require("../resolvers/index");
 const { getUserFromToken } = require("../utils/jwtHelper");
-const errorHandler = require("../utils/errors");
 
-const createApolloServer = async () => {
+const createApolloServer = async (app, io) => {
   try {
-    const app = express();
-
-    app.use(
-      cors({
-        origin: "http://localhost:5173",
-        credentials: true,
-      })
-    );
-
-    app.use(express.json());
-    app.use(errorHandler);
-
     const server = new ApolloServer({
       typeDefs,
       resolvers,
@@ -30,7 +15,7 @@ const createApolloServer = async () => {
             ? authHeader.slice(7)
             : null;
         const user = getUserFromToken(token);
-        return { req, res, user };
+        return { req, res, user, io };
       },
       introspection: true,
       playground: true,
@@ -39,7 +24,7 @@ const createApolloServer = async () => {
     await server.start();
     server.applyMiddleware({ app, cors: false });
 
-    return { app, server };
+    return { server };
   } catch (error) {
     console.error("Error initializing Apollo Server:", error);
     throw error;
