@@ -1,10 +1,7 @@
 import { gql } from "@apollo/client";
 import client from "./apolloClient";
 
-<<<<<<< HEAD
 // Query to fetch all courses
-=======
->>>>>>> 3fd30cc8a5683af940d62d4b1b41ce5ccd11fc34
 const GET_COURSES = gql`
   query GetCourses {
     courses {
@@ -15,7 +12,6 @@ const GET_COURSES = gql`
   }
 `;
 
-<<<<<<< HEAD
 // Query to fetch a course by ID
 const GET_COURSE_BY_ID = gql`
   query GetCourseById($id: ID!) {
@@ -33,8 +29,6 @@ const GET_COURSE_BY_ID = gql`
 `;
 
 // Mutation to delete a course
-=======
->>>>>>> 3fd30cc8a5683af940d62d4b1b41ce5ccd11fc34
 const DELETE_COURSE = gql`
   mutation DeleteCourse($id: ID!) {
     deleteCourse(id: $id) {
@@ -44,7 +38,6 @@ const DELETE_COURSE = gql`
   }
 `;
 
-<<<<<<< HEAD
 // Fetch all courses
 export const getCourses = async () => {
   try {
@@ -82,12 +75,4 @@ export const getCourseById = async (id) => {
     console.error("Error fetching course by ID:", error);
     throw error;
   }
-=======
-export const getAllCourses = async () => {
-  return client.query({ query: GET_COURSES });
-};
-
-export const deleteCourse = async (id) => {
-  return client.mutate({ mutation: DELETE_COURSE, variables: { id } });
->>>>>>> 3fd30cc8a5683af940d62d4b1b41ce5ccd11fc34
 };
