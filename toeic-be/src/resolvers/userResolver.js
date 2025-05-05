@@ -1,51 +1,47 @@
 const userService = require("../services/userService");
+
 const userResolver = {
   Query: {
-    getUser: (_, { id }) => {
-      return userService.getUserById(id);
+    getUser: async (_, { id }) => {
+      return await userService.getUserById(id);
     },
-    getUsers: (_, { limit = 10, offset = 0 }) => {
-      return userService.getUsers(limit, offset);
+    getUsers: async (_, { limit = 10, offset = 0 }) => {
+      return await userService.getUsers(limit, offset);
     },
   },
 
   Mutation: {
-    createUser: (_, { input }) => {
-      return userService.register(input);
+    createUser: async (_, { input }) => {
+      return await userService.register(input);
     },
 
-    updateUser: (_, { id, input }) => {
-      return userService.updateUser(id, input);
+    updateUser: async (_, { id, input }) => {
+      return await userService.updateUser(id, input);
     },
 
-    deleteUser: (_, { id }) => {
-      return userService.deleteUser(id);
+    deleteUser: async (_, { id }) => {
+      return await userService.deleteUser(id);
+    },
+
+    updateProfile: async (_, { id, input }) => {
+      return await userService.updateProfile(id, input);
     },
 
     loginWithGoogle: async (_, { idToken }) => {
-      // Đăng nhập với Google
       return await authService.loginWithGoogle(idToken);
     },
 
     forgotPassword: async (_, { email }) => {
-      // Gửi email reset mật khẩu
       return await userService.forgotPassword(email);
     },
 
     resetPassword: async (_, { token, newPassword }) => {
-      // Đặt lại mật khẩu bằng token
       return await userService.resetPassword(token, newPassword);
-    },
-
-    updateProfile: (_, { id, input }) => {
-      // Cập nhật thông tin người dùng
-      return userService.updateProfile(id, input);
     },
   },
 
   User: {
     role: async (parent) => {
-      // Lấy thông tin role của người dùng
       return await parent.getRole();
     },
   },

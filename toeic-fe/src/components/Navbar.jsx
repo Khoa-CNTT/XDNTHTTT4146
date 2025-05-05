@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
-<<<<<<< HEAD
 import "../styles/Navbar.css";
+
 const Navbar = () => {
   return (
     <nav className="flex justify-between items-center px-6 py-4 bg-white shadow-md relative z-50">
@@ -41,32 +41,6 @@ const Navbar = () => {
       {/* Sign Up */}
       <Link to="/login">
         <button className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-md transition duration-200">
-=======
-
-const Navbar = () => {
-  return (
-    <nav className="flex justify-between items-center px-6 py-4 bg-white shadow-md">
-      <h1 className="text-xl font-bold">TOEIC</h1>
-      <div className="space-x-6">
-        <Link to="/courses" className="text-gray-600 hover:text-black">
-          Courses
-        </Link>
-        <Link to="/tower" className="text-gray-600 hover:text-black">
-          Tower
-        </Link>
-        <Link to="/garden" className="text-gray-600 hover:text-black">
-          Garden
-        </Link>
-        <Link to="/toeic" className="text-gray-600 hover:text-black">
-          Toeic
-        </Link>
-        <Link to="/testing" className="text-gray-600 hover:text-black">
-          Testing
-        </Link>
-      </div>
-      <Link to="/login">
-        <button className="bg-teal-500 text-white px-4 py-2 rounded">
->>>>>>> 3fd30cc8a5683af940d62d4b1b41ce5ccd11fc34
           Sign Up
         </button>
       </Link>

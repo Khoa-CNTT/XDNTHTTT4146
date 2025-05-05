@@ -74,5 +74,12 @@
   "badge": "Badge",
   "congrats_new_badge": "Congratulations! You earned a new badge!",
   "achievement_unlocked": "Achievement Unlocked!",
-  "view_all_rewards": "View All Rewards"
+  "view_all_rewards": "View All Rewards",
+  "floorDetail": {
+    "title": "Floor {{id}}",
+    "description": "Detailed information about floor {{id}}..."
+  },
+  "common": {
+    "close": "Close"
+  }
 }

@@ -1,9 +1,5 @@
 import { useState } from "react";
-<<<<<<< HEAD
 import { forgotPassword } from "../../api/userApi";
-=======
-import { forgotPassword } from "./userApi";
->>>>>>> 3fd30cc8a5683af940d62d4b1b41ce5ccd11fc34
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");

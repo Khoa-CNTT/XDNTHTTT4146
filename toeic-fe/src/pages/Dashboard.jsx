@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-// pages/AdminDashboard.js
 import { Layout, Row, Col, Card, Typography } from "antd";
 import Sidebar from "../components/layout/Sidebar";
 import HeaderBar from "../components/admin/HeaderBar";
@@ -42,10 +40,13 @@ const AdminDashboard = () => {
 
           <Card
             title="Top Students Leaderboard"
-            style={{ marginTop: 24 }}
-            bordered
+            style={{
+              border: "1px solid #f0f0f0",
+              borderRadius: 8,
+              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)",
+            }}
           >
-            <LeaderboardTable data={leaderboardData} />
+            <LeaderboardTable data={data} />
           </Card>
         </Content>
       </Layout>
@@ -54,14 +55,3 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
-=======
-import React from "react";
-
-export default function Dashboard() {
-  return (
-    <div>
-      <h1>Welcome to the Dashboard! 🎉</h1>
-    </div>
-  );
-}
->>>>>>> 3fd30cc8a5683af940d62d4b1b41ce5ccd11fc34

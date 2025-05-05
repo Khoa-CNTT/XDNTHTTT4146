@@ -15,7 +15,7 @@ const ManageCourses = () => {
         const { data } = await getAllCourses();
         setCourses(data.courses);
       } catch (error) {
-        console.error("Có lỗi khi tải danh sách khóa học!", error);
+        console.error("Error loading course list!", error);
       } finally {
         setLoading(false);
       }
@@ -24,34 +24,34 @@ const ManageCourses = () => {
     fetchCourses();
   }, []);
 
-  // Xử lý xóa khóa học
+  // Handle course deletion
   const handleDeleteCourse = async (courseId) => {
-    if (!window.confirm("Bạn có chắc chắn muốn xóa khóa học này?")) return;
+    if (!window.confirm("Are you sure you want to delete this course?")) return;
 
     try {
       const { data } = await deleteCourse(courseId);
       if (data.deleteCourse.success) {
-        toast.success("Khóa học đã được xóa!");
-        setCourses(courses.filter((course) => course.id !== courseId)); // Cập nhật UI
+        toast.success("Course has been deleted!");
+        setCourses(courses.filter((course) => course.id !== courseId)); // Update UI
       } else {
-        toast.error("Xóa thất bại: " + data.deleteCourse.message);
+        toast.error("Delete failed: " + data.deleteCourse.message);
       }
     } catch (error) {
-      console.error("Lỗi khi xóa khóa học", error);
+      console.error("Error deleting course", error);
     }
   };
 
   return (
     <div className="manage-courses-container">
-      <h1>Quản lý Khóa học</h1>
+      <h1>Manage Courses</h1>
       <Link to="/admin/add-course">
-        <Button variant="primary">Thêm Khóa học Mới</Button>
+        <Button variant="primary">Add New Course</Button>
       </Link>
 
       {loading ? (
-        <p>Đang tải dữ liệu...</p>
+        <p>Loading data...</p>
       ) : courses.length === 0 ? (
-        <p>Không có khóa học nào.</p>
+        <p>No courses available.</p>
       ) : (
         <div className="courses-list">
           {courses.map((course) => (
@@ -61,13 +61,13 @@ const ManageCourses = () => {
                 <p>{course.description}</p>
                 <div className="card-actions">
                   <Link to={`/admin/edit-course/${course.id}`}>
-                    <Button variant="secondary">Chỉnh sửa</Button>
+                    <Button variant="secondary">Edit</Button>
                   </Link>
                   <Button
                     variant="danger"
                     onClick={() => handleDeleteCourse(course.id)}
                   >
-                    Xóa
+                    Delete
                   </Button>
                 </div>
               </CardContent>

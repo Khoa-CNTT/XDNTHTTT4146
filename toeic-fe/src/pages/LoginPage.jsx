@@ -9,16 +9,11 @@ const LoginPage = () => {
   const [isActive, setIsActive] = useState(false);
 
   useEffect(() => {
+    // Nếu đường dẫn là /register thì hiển thị giao diện đăng ký
     if (location.pathname === "/register") {
-<<<<<<< HEAD
       setIsActive(true);
     } else {
       setIsActive(false);
-=======
-      setIsActive(true); // Khi ở trang đăng ký, đặt isActive là true
-    } else {
-      setIsActive(false); // Khi ở trang đăng nhập, đặt isActive là false
->>>>>>> 3fd30cc8a5683af940d62d4b1b41ce5ccd11fc34
     }
   }, [location]);
 

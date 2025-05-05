@@ -1,34 +1,30 @@
-import { Layout, Typography, Input, Card } from "antd";
-import Sidebar from "../../components/layout/Sidebar";
-import HeaderBar from "../../components/layout/HeaderBar";
-import UserTable from "../../components/admin/UserTable";
+import { Card } from "antd";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
-const { Content } = Layout;
-const { Title } = Typography;
+import PageWrapper from "../components/common/PageWrapper";
+import PageHeader from "../components/common/PageHeader";
+import SearchBar from "../components/common/SearchBar";
+import UserTable from "../components/admin/UserTable";
 
 const UserManagement = () => {
   const [search, setSearch] = useState("");
+  const { t } = useTranslation();
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
-      <Sidebar />
-      <Layout>
-        <HeaderBar />
-        <Content style={{ margin: "24px 16px" }}>
-          <Title level={2}>User Management</Title>
+    <PageWrapper>
+      <PageHeader title={t("manage_users")} />
 
-          <Card>
-            <Input.Search
-              placeholder="Tìm theo tên hoặc email..."
-              onSearch={(value) => setSearch(value)}
-              enterButton
-            />
-            <UserTable searchTerm={search} />
-          </Card>
-        </Content>
-      </Layout>
-    </Layout>
+      <Card>
+        <SearchBar
+          placeholder={t("search_user_placeholder")}
+          onSearch={(value) => setSearch(value)}
+        />
+        <div className="mt-4">
+          <UserTable searchTerm={search} />
+        </div>
+      </Card>
+    </PageWrapper>
   );
 };
 

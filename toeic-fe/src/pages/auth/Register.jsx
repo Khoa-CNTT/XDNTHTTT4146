@@ -20,7 +20,6 @@ const Register = ({ setIsActive }) => {
     setFormData({ ...formData, [name]: value });
   };
 
-  // Gọi API đăng ký khi nhấn Sign Up
   const handleRegister = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -33,7 +32,6 @@ const Register = ({ setIsActive }) => {
         console.log("Đăng ký thành công:", response.data.register.msg);
         alert("Đăng ký thành công!");
 
-        // Kiểm tra xem setIsActive có tồn tại không trước khi gọi
         if (setIsActive) {
           setIsActive(false);
         }
@@ -84,7 +82,7 @@ const Register = ({ setIsActive }) => {
           text={loading ? "Registering..." : "Sign Up"}
           className="btn-primary"
           type="submit"
-          disabled={loading} // Vô hiệu hóa button khi đang loading
+          disabled={loading}
         />
       </form>
     </div>

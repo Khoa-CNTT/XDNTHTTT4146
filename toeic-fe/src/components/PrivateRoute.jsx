@@ -1,7 +1,6 @@
 import { Navigate, useLocation } from "react-router-dom";
 import PropTypes from "prop-types";
 import { useAuth } from "../contexts/AuthContext";
-import { Spinner } from "../components/Spinner"; // tuỳ bạn tự thiết kế
 
 const PrivateRoute = ({ element, requiredRole }) => {
   const { user, isAuthenticated, loading } = useAuth();

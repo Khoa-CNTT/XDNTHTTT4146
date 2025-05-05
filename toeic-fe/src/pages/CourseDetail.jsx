@@ -19,7 +19,7 @@ const CourseDetail = () => {
     fetchCourse();
   }, [id]);
 
-  if (!course) return <p>Đang tải khóa học...</p>;
+  if (!course) return <p>Course Loading...</p>;
 
   return (
     <div className="p-8">
@@ -29,7 +29,7 @@ const CourseDetail = () => {
       {/* Nếu có bài học */}
       {course.lessons?.length > 0 && (
         <div className="mt-6">
-          <h2 className="text-xl font-semibold">Danh sách bài học</h2>
+          <h2 className="text-xl font-semibold">Lesson List</h2>
           <ul className="list-disc pl-5 mt-2">
             {course.lessons.map((lesson) => (
               <li key={lesson.id}>{lesson.title}</li>

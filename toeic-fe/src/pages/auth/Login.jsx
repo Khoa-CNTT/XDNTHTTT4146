@@ -4,10 +4,7 @@ import SocialLogin from "../../components/student/SocialLogin";
 import InputField from "../../components/student/InputField";
 import Button from "../../components/student/Button";
 import { loginUser } from "../../api/userApi";
-<<<<<<< HEAD
-import { Link } from "react-router-dom";
-=======
->>>>>>> 3fd30cc8a5683af940d62d4b1b41ce5ccd11fc34
+import { Link } from "react-router-dom"; // Fixed the link tag for react-router
 
 const Login = ({ onLogin }) => {
   const [formData, setFormData] = useState({
@@ -17,50 +14,38 @@ const Login = ({ onLogin }) => {
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-<<<<<<< HEAD
   const navigate = useNavigate();
 
-=======
-  const navigate = useNavigate(); // Hook điều hướng
-
-  // Xử lý thay đổi input
->>>>>>> 3fd30cc8a5683af940d62d4b1b41ce5ccd11fc34
+  // Handle form input changes
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-<<<<<<< HEAD
-=======
-  // Gọi API đăng nhập
->>>>>>> 3fd30cc8a5683af940d62d4b1b41ce5ccd11fc34
+  // Handle login action
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
+    setError(""); // Reset error message
 
     try {
       const response = await loginUser(formData);
-<<<<<<< HEAD
-      const { token, user } = response.data.login;
-=======
-      const { token, user } = response.data.login; // Giả sử API trả về user info
->>>>>>> 3fd30cc8a5683af940d62d4b1b41ce5ccd11fc34
+      const { token, user } = response.data.login; // Assuming API returns user info
 
       console.log("Login success:", user);
       alert("Đăng nhập thành công!");
 
-      // Lưu vào localStorage
+      // Store token and user info in localStorage
       localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user)); // Lưu cả user info
+      localStorage.setItem("user", JSON.stringify(user));
 
-      // Cập nhật state của App
+      // Update app state
       onLogin(user);
 
-      // Điều hướng theo role
+      // Navigate based on role
       navigate(user.role === "admin" ? "/admin/dashboard" : "/user/home");
     } catch (err) {
       console.error("Login error:", err);
-      setError("Sai email hoặc mật khẩu!");
+      setError("Sai email hoặc mật khẩu!"); // Customize based on actual error
     } finally {
       setLoading(false);
     }
@@ -72,6 +57,8 @@ const Login = ({ onLogin }) => {
         <h1>Sign In</h1>
         <SocialLogin />
         <span>or use your email password</span>
+
+        {/* Input fields */}
         <InputField
           type="email"
           name="email"
@@ -86,21 +73,23 @@ const Login = ({ onLogin }) => {
           value={formData.password}
           onChange={handleChange}
         />
-<<<<<<< HEAD
+
+        {/* Forgot Password Link */}
         <Link
           to="/forgot-password"
           className="text-sm text-blue-500 hover:underline"
         >
           Forget Your Password?
         </Link>
-=======
-        <a href="./ForgotPassword">Forget Your Password?</a>
->>>>>>> 3fd30cc8a5683af940d62d4b1b41ce5ccd11fc34
+
+        {/* Error message */}
         {error && <p style={{ color: "red" }}>{error}</p>}
+
+        {/* Submit Button */}
         <Button
           text={loading ? "Signing in..." : "Sign In"}
           className="btn-primary"
-          onClick={handleLogin}
+          disabled={loading} // Disable button while loading
         />
       </form>
     </div>

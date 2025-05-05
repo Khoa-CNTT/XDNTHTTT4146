@@ -1,43 +1,3 @@
-<<<<<<< HEAD
-/* styles/Navbar.css */
-
-.nav-link {
-  color: #333;
-  text-decoration: none;
-  font-weight: 600;
-  transition: color 0.3s ease-in-out;
-}
-
-.nav-link:hover {
-  color: #00796b;
-}
-
-.dropdown-item {
-  padding: 10px;
-  text-decoration: none;
-  display: block;
-  color: #333;
-}
-
-.dropdown-item:hover {
-  background-color: #f1f1f1;
-}
-
-.navbar button {
-  transition: background-color 0.3s ease;
-}
-
-.navbar button:hover {
-  background-color: #00796b;
-}
-
-.navbar button.active {
-  background-color: #00796b;
-}
-
-.navbar button.active:hover {
-  background-color: #005f56;
-=======
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -46,6 +6,7 @@
   background-color: #f2f2f2;
 }
 
+/* Logo */
 .navbar-logo {
   display: flex;
   align-items: center;
@@ -62,6 +23,7 @@
   font-weight: 700;
 }
 
+/* Navbar Menu */
 .navbar-menu {
   display: flex;
   align-items: center;
@@ -73,13 +35,50 @@
   font-weight: 500;
   color: #333;
   text-decoration: none;
+  transition: color 0.3s ease-in-out;
 }
 
 .navbar-menu a:hover {
   color: #0077cc;
 }
 
-.navbar-menu a:last-child {
-  margin-right: 0;
->>>>>>> 3fd30cc8a5683af940d62d4b1b41ce5ccd11fc34
+/* Dropdown Menu */
+.dropdown-item {
+  padding: 10px;
+  text-decoration: none;
+  display: block;
+  color: #333;
+}
+
+.dropdown-item:hover {
+  background-color: #f1f1f1;
+}
+
+/* Navbar Button */
+.navbar button {
+  transition: background-color 0.3s ease;
+}
+
+.navbar button:hover {
+  background-color: #00796b;
+}
+
+.navbar button.active {
+  background-color: #00796b;
+}
+
+.navbar button.active:hover {
+  background-color: #005f56;
+}
+
+/* Styling for .nav-link class */
+.nav-link {
+  color: #333;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease-in-out;
+}
+
+.nav-link:hover {
+  color: #00796b;
 }
