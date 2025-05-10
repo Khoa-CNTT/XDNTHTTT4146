@@ -4,11 +4,11 @@ const { sequelize } = require("../../config/mysql");
 class Land extends Model {
   static associate(models) {
     Land.belongsTo(models.Image, {
-      foreignKey: "imageId", // Ảnh đại diện chung cho đất
+      foreignKey: "imageId",
       as: "image",
     });
     Land.belongsTo(models.Image, {
-      foreignKey: "statusImageId", // Ảnh theo trạng thái đất
+      foreignKey: "statusImageId",
       as: "statusImage",
     });
     Land.belongsTo(models.Garden, {

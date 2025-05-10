@@ -99,7 +99,6 @@ export const logoutUser = () => {
   window.location.href = "/login";
 };
 
-// Các mutation / query mở rộng liên quan tới gamification, tiến độ học, phần thưởng, v.v.
 export const GET_USER_PROGRESS = gql`
   query GetUserProgress($userId: ID!) {
     getUserProgress(userId: $userId) {

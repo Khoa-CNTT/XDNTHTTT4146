@@ -12,6 +12,10 @@ class Garden extends Model {
       foreignKey: "gardenId",
       as: "items",
     });
+    Garden.hasMany(models.Land, {
+      foreignKey: "gardenId",
+      as: "lands",
+    });
   }
 }
 
@@ -43,4 +47,5 @@ Garden.init(
     timestamps: true,
   }
 );
+
 module.exports = Garden;
